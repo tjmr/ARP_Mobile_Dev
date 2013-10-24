@@ -1,0 +1,250 @@
+<!--
+This needs a tidy up - remove try and catch etc.
+-->
+
+<!DOCTYPE html>
+
+<html manifest="../cache.manifest">
+
+  <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" type="text/css" href="js/mobiletheme.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.mobile.min.css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/include.js"></script>
+    <script src="js/jquery.mobile.min.js"></script>
+    <script src="js/mobiscroll.core.js" type="text/javascript"></script>
+    <script src="js/mobiscroll.datetime.js" type="text/javascript"></script>
+    <script src="js/mobiscroll.ios7.js" type="text/javascript"></script>
+    <link href="css/mobiscroll.core.css" rel="stylesheet" type="text/css" />
+    <link href="css/mobiscroll.ios7.css" rel="stylesheet" type="text/css" />
+    <title>ARP Mobile</title>
+
+    <script>
+
+try {
+  
+  var $months = new Array();
+    $months[1] = "Jan";
+    $months[2] = "Feb";
+    $months[3] = "Mar";
+    $months[4] = "Apr";
+    $months[5] = "May";
+    $months[6] = "Jun";
+    $months[7] = "Jul";
+    $months[8] = "Aug";
+    $months[9] = "Sep";
+    $months[10] = "Oct";
+    $months[11] = "Nov";
+    $months[12] = "Dec";
+
+  var $bookingid = localStorage.getItem("currentbookingid");
+  var $button = localStorage.getItem("edittimebutton");  
+  
+  var $booking = {
+    departtime: '-',
+    starttime: '-',
+    finishtime: '-',
+    returntime: '-',
+    completiondetailid: '0',
+    complete: 'no', 
+    edited: 'no'  
+    };
+
+  var $bookingdata = {};
+
+  var $jsonbookingdata = localStorage.getItem("jsonbookingdata");
+  if($jsonbookingdata) {
+    $bookingdata = JSON.parse($jsonbookingdata);
+    if(!$bookingdata[$bookingid]) $bookingdata[$bookingid] = $booking;
+    else $booking = $bookingdata[$bookingid];
+    }
+  else $bookingdata = {};
+  
+  var $source = '';
+  var $heading = '';
+  
+  switch($button) {
+    case 'depart':
+      $source = $booking.departtime;
+	  $heading = 'Depart';
+      break;
+    case 'start':
+      $source = $booking.starttime;
+	  $heading = 'Start';
+      break;
+    case 'finish':
+      $source = $booking.finishtime;
+	  $heading = 'Finish';
+      break;
+    case 'return':
+      $source = $booking.returntime;
+	  $heading = 'Return';
+      break;
+    default:
+    }
+
+  $sourcedatedate = $source.substring(0,2);
+  $sourcedatedate = $sourcedatedate.replace(/^(0+)/g, '');
+  $sourcedatemonthstring = $source.substring(3,5);
+  $sourcedatemonth = Number($sourcedatemonthstring);
+  $sourcedateyear = $source.substring(6,10);
+  $sourcedatestring = $sourcedatedate + " " + $months[$sourcedatemonth] + " " + $sourcedateyear;
+  $sourcetime = $source.substring(11);
+  
+  $(document).ready(function() {
+    pageinitialisation();
+	document.getElementById("dateentry").value = $sourcedatestring;
+	document.getElementById("timeentry").value = $sourcetime;
+    });
+	
+  } 
+  
+catch (error) {
+  console.error("Your javascript has an error: " + error);
+  }
+
+function savebuttonpressed(form) {
+  var $dateentry = $('#dateentry').mobiscroll('getDate');
+  var $newdate = leftPad($dateentry.getDate(),2);
+  var $newmonth = leftPad($dateentry.getMonth() + 1,2);
+  var $newyear = $dateentry.getFullYear();
+  var $newdateentrystring = $newyear + "-" + $newmonth + "-" + $newdate;
+  var $timeentry = form.timeentry.value;
+  if($newdateentrystring=='' || $timeentry=='') $datetime = '-';
+  else $datetime = $newdateentrystring.substring(8,10)+"/"+$newdateentrystring.substring(5,7)+"/"+$newdateentrystring.substring(0,4)+" "+$timeentry;
+   
+  switch($button) {
+    case 'depart':
+      $booking.departtime = $datetime;  
+      break;
+    case 'start':
+      $booking.starttime = $datetime;  
+      break;
+    case 'finish':
+      $booking.finishtime = $datetime;  
+      break;
+    case 'return':
+      $booking.returntime = $datetime;  
+      break;
+    default:
+    }
+	
+  $booking.edited = 'yes';
+  
+  $bookingdata[$bookingid] = $booking;
+  var $jsonbookingdata = JSON.stringify($bookingdata);
+  localStorage.setItem("jsonbookingdata",$jsonbookingdata);  
+
+  window.location.replace("bookingdetail.html");
+  }
+  
+function cancelbuttonpressed() {
+  window.location.replace("bookingdetail.html");
+  }
+  
+function nineoclockpressed() {
+  $sourcetime = "09:00";
+  document.getElementById("timeentry").value = $sourcetime;
+  $('#timeentry').mobiscroll('setValue',$sourcetime);
+  }
+  
+function fivethirtypressed() {
+  $sourcetime = "17:30";
+  document.getElementById("timeentry").value = $sourcetime;
+  $('#timeentry').mobiscroll('setValue',$sourcetime);
+  }
+  
+function leftPad(number, targetLength) {
+  var output = number + '';
+  while (output.length < targetLength) {
+    output = '0' + output;
+    }
+  return output;
+  }
+
+$(function(){
+  $('#dateentry').mobiscroll().date({
+    theme: 'ios7',
+    display: 'bubble',
+    mode: 'scroller',
+    dateOrder: 'D dMyy',
+    dateFormat: 'd M yy'
+    });    
+  });
+  
+$(function(){
+  $('#timeentry').mobiscroll().time({
+    theme: 'ios7',
+    display: 'bubble',
+    mode: 'scroller',
+	timeFormat: 'HH:ii',
+	timeWheels: 'HHii'
+    });    
+  });
+  
+</script>
+
+</head>
+
+<body>
+
+<div data-role="page" id="page1">
+  <div data-role="header" data-theme="b">
+    <h3><script>document.write($heading)</script></h3>
+  </div>
+  
+  <div data-role="content">
+  
+    <form>
+	  <ul data-role="listview">
+	  
+	    <li data-role="fieldcontain">
+          <label for="dateentry">Date:</label>
+          <input name="dateentry" id="dateentry" class="i-txt" />
+		</li>
+		
+	    <!--<li data-role="fieldcontain">
+	      <label for="dateentry">Date:</label>
+	      <input type="date" name="dateentry" id="dateentry" value="" />
+		</li>-->
+		
+		<li data-role="fieldcontain">
+	      <label for="timeentry">Time:</label>
+	      <!--<input type="time" name="timeentry" id="timeentry" value=""  />-->
+          <input name="timeentry" id="timeentry" class="i-txt" />
+		</li>
+		
+        <li data-role="fieldcontain">
+		  <fieldset data-role="controlgroup" data-type="horizontal">
+		    <legend></legend>
+            <a data-role="button" data-theme="b" onclick="nineoclockpressed()">09:00</a>
+            <a data-role="button" data-theme="b" onclick="fivethirtypressed()">17:30</a>	
+		  </fieldset>
+		</li>		
+		
+        <li class="ui-body ui-body-b">
+          <fieldset class="ui-grid-a">
+            <div class="ui-block-a"><input type="button" data-theme="c" data-icon="delete" value="Cancel" onclick="cancelbuttonpressed()"/></div>
+            <div class="ui-block-b"><input type="button" data-theme="b" data-icon="check" value="Save" onclick="savebuttonpressed(this.form)"/></div>
+		  </fieldset>
+		</li>		
+		
+	  </ul>
+	  
+    </form>
+	
+  </div>
+  
+</div>
+
+</body>
+
+</html>

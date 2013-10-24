@@ -1,0 +1,169 @@
+<!--
+
+-->
+
+<!DOCTYPE html>
+
+<html manifest="../cache.manifest">
+
+  <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" type="text/css" href="js/mobiletheme.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.mobile.min.css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/include.js"></script>
+    <script src="js/jquery.mobile.min.js"></script>
+    <title>ARP Mobile</title>
+
+    <script>
+
+      $(document).ready(function() {
+        pageinitialisation();
+  
+	    $("#backbutton").click(function() {
+          window.location.replace("index.html");
+          }); // end of backbutton
+  
+	    $("#emailreportbutton").click(function() {
+	      onlinecheck(function(result) {
+            if(result==true) {  // online code here
+              $engineerid = localStorage.getItem("storedengineerid");
+              $engineername = localStorage.getItem("storedengineername");
+              $datefrom = $("#weekselection :radio:checked").val();
+			  $datefromdate = stringtodate($datefrom);
+		      $datetodate = adddays($datefromdate,6);
+			  $dateto = getdatevalue($datetodate);
+		      $parameters = $engineerid + "&" + $engineername + "&" + $datefrom + "&" + $dateto;
+			  $.mobile.loading('show');
+              $.post("ajax/emailworksummary.php",{parameters:$parameters},function() {
+				$.mobile.loading('hide');
+				$("#emailsentpopup").popup("open");
+		        });
+			  } // end of online code
+	        else {  // offline code here
+  	          alert("You have lost connection to the server, the report can't be requested when offline.  Please try again when you are online.");
+              window.location.replace("index.html");
+	          } // end of offline code
+	        }); // end of onlinecheck
+          }); // end of emailreportbutton
+  
+        }); // end of DOM ready
+		
+	
+		
+		
+	  function stringtodate($datestring) { // yyyy-mm-dd expected
+	    var $year  = Number($datestring.substring(0,4)); 
+        var $month = Number($datestring.substring(5,7)) - 1; // months are zero based! 
+        var $date  = Number($datestring.substring(8,10));
+		var $dateobject = new Date($year,$month,$date);
+        return $dateobject;  // up to here!!!
+		}
+		
+      function getMonday( date ) {
+        var day = date.getDay() || 7;  
+        if( day !== 1 ) date.setHours(-24 * (day - 1)); 
+        return date;
+        }
+		
+      function showweekslist() {
+	    $currentweek = getMonday(new Date());
+		$weeks = 6;
+		$weekbeginning = $currentweek;
+        $checked = ' checked';
+        for (var $i=0; $i<$weeks; $i++) {
+		  $weekbeginningdisplay = getdatedisplay($weekbeginning);
+		  $endofweek = adddays($weekbeginning,6);
+		  $endofweekdisplay = getdatedisplay($endofweek);
+		  $selectweekdisplay = $weekbeginningdisplay + " to " + $endofweekdisplay;
+		  $weekbeginningvalue = getdatevalue($weekbeginning);
+	      document.write('<input type="radio" name="week" id="radio-choice-'+$i+'" value="'+$weekbeginningvalue+'"'+$checked+'/>');		
+	      document.write('<label for="radio-choice-'+$i+'">'+$selectweekdisplay+'</label>');		
+		  $weekbeginning = oneweekback($weekbeginning);
+		  $checked = '';
+		  }	    
+        }
+		
+      function leftPad(number, targetLength) {
+        var output = number + '';
+        while (output.length < targetLength) {
+          output = '0' + output;
+          }
+        return output;
+        }
+		
+	  function oneweekback($date) {
+        var y = $date.getFullYear(),
+            m = $date.getMonth(),
+            d = $date.getDate();
+        d -= 7;
+        return new Date(y, m, d);
+        }
+		
+	  function adddays($date,$days) {
+        var y = $date.getFullYear(),
+            m = $date.getMonth(),
+            d = $date.getDate();
+        d += $days;
+        return new Date(y, m, d);
+        }
+		
+      function getdatedisplay($date) {
+		return leftPad($date.getDate(),2) + "/" + 
+	           leftPad($date.getMonth() + 1,2) + "/" +
+			   $date.getFullYear();
+		}
+
+      function getdatevalue($date) {
+		return $date.getFullYear() + "-" +
+		       leftPad($date.getMonth() + 1,2) + "-" +
+			   leftPad($date.getDate(),2);
+		}
+
+	</script>
+
+  </head>
+
+  <body>
+
+    <div data-role="page" id="page1">
+      <div data-role="content">
+	  
+        <a id="backbutton" data-role="button" data-inline="true" data-theme="b" data-icon="back" data-iconpos="left">
+          Back
+        </a>
+		
+        <div class="small">
+		  <p>This feature will create a report detailing the work completed for the chosen week.
+		  The report will show the dates and times of each job, along with customer and project information.</p>
+		
+		  <p>Select the week you would like the report for, and press the
+		  'Email Report' button - the report will then be sent as an email to your email account.</p>
+		</div>
+		
+		<div data-role="fieldcontain" id="div_radio" class="radiogroup">
+          <fieldset data-role="controlgroup" id="weekselection">
+            <legend>Select Week:</legend>
+            <script>showweekslist()</script>
+          </fieldset>
+        </div>
+		
+        <input type="button" id="emailreportbutton" data-theme="b" value="Email Report"/>
+		
+		<div id="emailsentpopup" data-role="popup" data-overlay-theme="a" class="ui-content">
+		  <p><strong>Email sent</strong></p>
+		</div>
+  		
+      </div>
+    </div>
+
+  </body>
+
+</html>

@@ -1,0 +1,86 @@
+
+<!--
+in time modify to select the name from a list of valid names, narrow the list down as characters from the name are typed
+-->
+
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+  
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" type="text/css" href="js/mobiletheme.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.mobile.min.css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/include.js"></script>
+    <script src="js/jquery.mobile.min.js"></script>
+    <title>ARP Mobile</title>
+
+    <script>
+
+      $(document).ready(function() {
+        // do stuff when DOM is ready
+        pageinitialisation();
+        });
+  
+      function savepbpressed(form) {
+	    onlinecheck(function(result) {
+          if(result==true) {  // online code here
+            var $engineerid = form.engineerid.value;
+            localStorage.setItem("storedengineerid",$engineerid);
+            localStorage.removeItem("jsonjobarray"); // check if anything else should be removed when changing engineer
+  		    localStorage.removeItem("storedengineername");
+            window.location.replace("index.html");
+	        } // end of online code
+	      else {  // offline code here
+  	        alert("You have lost connection to the server, the engineer details can't be changed when offline.  Please try again when you are online.");
+            window.location.replace("index.html");
+	        } // end of offline code
+	      }); // end of onlinecheck
+        } // end of savebuttonpressed
+
+      function cancelpbpressed() {    
+        window.location.replace("index.html");
+        }
+
+    </script>
+
+  </head>
+
+  <body>
+
+    <div data-role="page" id="page1">
+      <div data-role="content">
+    
+	    <div class='small'>If you don't know your engineer number, please contact Resource Management.</div>
+        <br />
+	    <form name="engineernumber" action="" method="GET">
+          <fieldset data-role="controlgroup">
+			<div data-role="fieldcontain">
+              <label for="engineerid"><b>Engineer Number</b></label>
+              <input name="engineerid" id="engineerid" placeholder="" value="" type="tel">
+			</div>
+          </fieldset>
+
+		  <br />  
+		  
+	      <div class="ui-grid-a">
+            <div class="ui-block-a"><input type="button" data-theme="c" data-icon="delete" value="Cancel" onclick="cancelpbpressed()"/></div>
+            <div class="ui-block-b"><input type="button" data-theme="b" data-icon="check" value="Save" onclick="savepbpressed(this.form)"/></div>
+	      </div>
+		  		  
+        </form>
+      </div>
+    </div>
+ 
+  </body>
+
+</html>

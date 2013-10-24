@@ -1,0 +1,153 @@
+<!--
+rewrite jobcompletion list download code so it doesn't download every time
+check for successful download
+upload bookingdata before download?
+check for no jobs in the list
+booked jobs button should disappear if no engineer set or invalid engineer set
+-->
+
+<!DOCTYPE html>
+
+<html manifest="../cache.manifest">
+
+  <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" type="text/css" href="js/mobiletheme.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.mobile.min.css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/include.js"></script>
+    <script src="js/jquery.mobile.min.js"></script>
+    <title>ARP Mobile</title>
+
+    <script>
+	
+      localStorage.removeItem("currentbookingid");
+      $engineerid = localStorage.getItem("storedengineerid");
+	  
+	  //autocomplete();
+	
+      $(document).ready(function() {
+        pageinitialisation();
+		autocomplete(function() {
+		
+	    onlinecheck(function(result) {
+          if(result==true) { // online code here
+		    downloadjobcompletionlist(); // downloads completion codes in case they have changed
+			downloadautocompletetypes(); // download auto complete types in case they have changed (probably isn't needed that often)
+ 	        uploadbookingdata(function() { // uploads all booking data
+              downloadjobs($engineerid,function(data,status) { // downloads new jobs and removes old jobs from bookingdata
+		        if(data==true) drawtable();
+				else ("#tablebody").html = "Error...";
+		        }); // end of downloadjobs 
+			  }); // end of uploadbookingdata
+	        } // end of online code
+	      else { // offline code here
+  	        drawtable();
+	        } // end of offline code
+  	      }); // end of onlinecheck
+		  
+		  });
+		    
+        }); // end of DOM ready
+		
+      function menubuttonpressed() {
+        window.location.replace("index.html");
+        }
+
+	  function bookingselected(theBookingID) {
+	    localStorage.setItem("currentbookingid",theBookingID);
+        window.location.href = "bookingdetail.html";
+        }
+		
+      function drawtable() {
+        var $bookingdata = {};
+        var $jobarray = {};
+        var $jsonbookingdata = localStorage.getItem("jsonbookingdata");
+        if($jsonbookingdata) $bookingdata = JSON.parse($jsonbookingdata);
+        var $jsonjobarray = localStorage.getItem("jsonjobarray");
+        if($jsonjobarray) jobarray = JSON.parse($jsonjobarray);
+        $tablecontent = '';  
+		$nobookingsfound = '<br /><table border="0" cellpadding="4" cellspacing="0" width="100%" class="medium"><tr><td>';
+		$nobookingsfound += 'No bookings found...<br /><br />Either there are no bookings within the time ';
+		$nobookingsfound += 'period, or the device is having problems contacting the server.  If your connection is ';
+		$nobookingsfound += 'unstable or you are currently offline, please try again shortly.  If you believe your ';
+		$nobookingsfound += 'connection is stable and there should be some bookings in this list, please contact the ';
+		$nobookingsfound += 'resource planning team.';
+		$nobookingsfound += '</td></tr></table>';
+        // loop through bookings
+        for (var $item in jobarray) {
+          // some browsers add more properties to every object, we don't want those
+          if (jobarray.hasOwnProperty($item)) {
+	        $bookingid = jobarray[$item].bookingid;
+	        //$bookingid = $item;
+	        $dt_complete = 'no';
+	        if($bookingdata[$bookingid]) $dt_complete = $bookingdata[$bookingid].complete;
+	        if($dt_complete!='yes') {
+	          date = jobarray[$item].date;
+              var myDate = new Date(date);
+              datestring = formatdate(myDate);
+              $tablecontent += '<p class="joblist"><b>'+datestring + '</b>';
+	          $tablecontent += '</p>';
+              $tablecontent += '<table border="1" cellpadding="4" cellspacing="0" width="280" class="small" id="'+$bookingid+'" onclick="bookingselected(this.id)">';
+
+	          $tablecontent += '<tr><td>ID:</td><td>'+$bookingid+'</td></tr>'; // temporary - remove at some point
+
+	          $tablecontent += '<tr><td>Type:</td><td>'+jobarray[$item].type+'</td></tr>';
+	          $tablecontent += '<tr><td>Customer:</td><td>'+jobarray[$item].customer+'</td></tr>';
+		      $decodeddetail = hex2bin(jobarray[$item].detail);
+	          $tablecontent += '<tr><td>Detail:</td><td>'+$decodeddetail+'</td></tr>';
+	          $tablecontent += '<tr><td>Project No.:</td><td>'+jobarray[$item].projectnumber+'</td></tr>';
+	          $tablecontent += '<tr><td>Project:</td><td>'+jobarray[$item].description+'</td></tr>';
+	          $tablecontent += '<tr><td>Timeslot:</td><td>'+jobarray[$item].timeslot+'</td></tr>';
+	          $tablecontent += '<tr><td>Length:</td><td>'+jobarray[$item].length+'</td></tr>';
+	          $tablecontent += '<tr><td>Location:</td><td>'+jobarray[$item].location+'</td></tr>';
+	          $tablecontent += '<tr><td>Town:</td><td>'+jobarray[$item].town+'</td></tr>';
+	          $tablecontent += '<tr><td>Postcode:</td><td>'+jobarray[$item].postcode+'</td></tr>';
+              $tablecontent += '</table><br />';
+	          } // end of if complete
+            } // end of if hasownproperty
+          } // end of for loop
+		//if($tablecontent=='') $tablecontent = '<br />No bookings found...';
+		if($tablecontent=='') $tablecontent = $nobookingsfound;
+        document.getElementById("tablebody").innerHTML = $tablecontent;   
+        } // end of drawtable
+		
+      function hex2bin(hex) {
+        var bytes = [], str;
+        for(var i=0; i< hex.length-1; i+=2) {
+          bytes.push(parseInt(hex.substr(i, 2), 16));
+	      }
+        return String.fromCharCode.apply(String, bytes);
+        } // end of hex2bin
+    
+    </script>
+
+  </head>
+
+  <body>
+
+    <div data-role="page" id="page1">
+      <div data-role="content">
+	  
+        <a id="menubutton" data-role="button" data-inline="true" data-theme="b" 
+	      onclick="menubuttonpressed()" data-icon="back" data-iconpos="left">
+          Menu
+        </a>
+        <br />
+	    <div id='tablebody'>
+		  <br /><table border="0" cellpadding="4" cellspacing="0" width="280" class="medium"><tr><td>
+		  Loading...</td></tr></table>
+		</div>
+      </div>
+    </div>
+ 
+  </body>
+
+</html>

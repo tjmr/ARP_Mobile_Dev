@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+
+<html manifest="../cache.manifest">
+
+  <head>
+  
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+  
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" type="text/css" href="js/mobiletheme.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.mobile.min.css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/include.js"></script>
+    <script src="js/jquery.mobile.min.js"></script>
+    <title>ARP Mobile</title>
+
+    <script>
+
+	  localStorage.setItem("rootpath","http://plannerdev.burnleylab.co.uk/mobile/"); // use this for Android Dev build
+	  //localStorage.setItem("rootpath","http://planner.burnleylab.co.uk/mobile/"); // use this for Android Live build
+	  //localStorage.setItem("rootpath",""); // use this for IOS build (Live or Dev) - and WEB build (Live or Dev)
+	
+	  $rootpath = localStorage.getItem("rootpath");
+
+      var $ios = false;
+      var $p = navigator.platform;
+      if( $p === 'iPad' || $p === 'iPhone' || $p === 'iPod' ) $ios = true;
+      localStorage.setItem("ios",$ios);
+
+      $engineerid = localStorage.getItem("storedengineerid");
+      $engineername = localStorage.getItem("storedengineername");
+
+      $(document).ready(function() {
+        pageinitialisation();
+	    if ($engineerid == null) {
+          document.getElementById("engineertext").innerHTML = "No locally stored engineer ID.  Please select setup.";      
+          }
+        else if ($engineername == null) {
+          onlinecheck(function(result) {
+            if(result==true) { // online code here
+              $.post($rootpath + "getengineername.php",{engineerid:$engineerid},
+              function(data,status) {
+	            $engineername = data;
+				if($engineername == "") {
+				  document.getElementById("engineertext").innerHTML = "Invalid engineer ID.  Please select setup.";
+				  }
+				else {
+                  localStorage.setItem("storedengineername",$engineername);
+	              document.getElementById("engineertext").innerHTML = "Engineer: " + $engineername;
+                  }				  
+		        });	// end of $post
+	          } // end of online code
+	        else { // offline code here
+  	          document.getElementById("engineertext").innerHTML = "Engineer ID: " + $engineerid;
+	          } // end of offline code
+	        }); // end of onlinecheck 		  
+          }
+		else {
+          document.getElementById("engineertext").innerHTML = "Engineer: " + $engineername;   
+	      }
+		downloadissueslist(); // download issues list in case it has changed (probably isn't needed that often)
+
+	    $("#worksummarybutton").click(function() {
+          onlinecheck(function(result) {
+            if(result==true) {
+	          window.location.replace("worksummary.html"); // online code here
+	          }
+	        else {
+  	          alert("You are currently offline, this function is only available when you are online.  Please try again later."); // offline code here
+	          }
+	        });
+          }); // end of worksummarybutton
+
+        }); 
+  
+// functions
+
+      function bookedjobsbuttonpressed() {
+        window.location.replace("bookedjoblist.html"); 
+		}
+  
+      function setupbuttonpressed() {
+        onlinecheck(function(result) {
+          if(result==true) {
+	        window.location.replace("engineerselection.html"); // online code here
+	        }
+	      else {
+  	        alert("You are currently offline, setup can only be done when you are online.  Please try again later."); // offline code here
+	        }
+	      });
+        }
+
+      /*function adhocbuttonpressed() {
+        window.location.replace("../mobile/adhocjob.html"); }*/
+
+      function onlinecheckbuttonpressed() {
+        alertshowingonlinestatus(); 
+		}
+  
+      /*function erasebuttonpressed() {
+        localStorage.removeItem("jsonbookingdata");
+        localStorage.removeItem("jsonjobarray");
+        localStorage.removeItem("jsonjobcompletionlist");
+        localStorage.removeItem("jsonautocompletetypes");
+        alert('Local Data Erased!');
+        }
+		
+      function getjobsbuttonpressed() {
+        downloadjobs($engineerid,function(data,status) {
+		  alert(data);
+		  });
+        }
+		
+	  function dev() {
+        alert(autocomplete());
+		} // end of dev*/
+		
+      function downloadissueslist() { // ONLY WORKS ONLINE BUT CAN BE CALLED ONLINE OR OFFLINE
+        onlinecheck(function(result) {
+          if(result==true) { // online code here	  
+            $.post($rootpath + "getissueslist.php",   // read the issues list
+            function(data,status) {
+              var $jsonissueslist = data;
+              if($jsonissueslist!='') {
+                localStorage.removeItem("jsonissueslist");
+                localStorage.setItem("jsonissueslist",$jsonissueslist);
+                } // end of if jsonissueslist exists
+              }); // end of $post		
+	        } // end of online code
+	        // no offline code for this one
+	      }); // end of onlinecheck
+        } // end of downloadissueslist
+  
+	</script>
+
+  </head>
+
+  <body>
+
+    <div data-role="page" id="page1">
+      <div data-role="content">
+    
+        <table width='100%'>
+		  <tr>
+		    <td style='vertical-align:middle'>
+              <div class='small' id='engineertext'></div>
+            </td>
+		    <td align='right' style='vertical-align:middle'>
+		      <span style='font-size:60%'>461</span>
+            </td>
+		  </tr>
+        </table>
+
+        <hr />
+        <br />
+		
+        <ul data-role="listview" data-divider-theme="b" data-inset="true">
+          <li data-theme="b"  onclick="bookedjobsbuttonpressed()">Booked Jobs</li>
+	    </ul>
+        <ul data-role="listview" data-divider-theme="b" data-inset="true">		  
+          <!--<li data-theme="b">Surveys</li>-->
+          <!--<li data-theme="b"  onclick="adhocbuttonpressed()">Ad-hoc Job</li>-->
+          <!--<li data-theme="b"  onclick="getjobsbuttonpressed()">Get Jobs</li>-->
+          <li data-theme="b"  onclick="setupbuttonpressed()">Setup</li>
+          <li data-theme="b" id="worksummarybutton">Work Summary</li>
+          <!--<li data-theme="b"  onclick="erasebuttonpressed()">Erase</li>-->
+          <li data-theme="b"  onclick="onlinecheckbuttonpressed()">Online Check</li>
+          <!--<li data-theme="b" href="#popupBasic" data-rel="popup">Online Check</li>-->
+          <!--<li data-theme="b"  onclick="dev()">Dev</li>-->
+        </ul>
+		
+
+		
+		
+		
+		<!--<a href="#popupBasic" data-rel="popup" data-role="button" data-inline="true">Open Popup</a>-->
+
+<!--<div data-role="popup" id="popupBasic">
+	<p><script>
+	if(checkonlinestatus) document.write("Online");
+	else document.write("Offline");
+	</script><p>
+</div>-->
+
+      </div>
+    </div>
+
+  </body>
+
+</html>

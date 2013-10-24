@@ -1,0 +1,432 @@
+<!--
+Could be optimised!
+when is jobcompletionlist updated?
+-->
+
+<!DOCTYPE html>
+
+<html manifest="../cache.manifest">
+
+  <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" type="text/css" href="js/mobiletheme.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.mobile.min.css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/include.js"></script>
+    <script src="js/jquery.mobile.min.js"></script>
+    <title>ARP Mobile</title>
+
+    <script>
+
+      //var $bookingid = getbookingid();
+	  var $bookingid = localStorage.getItem("currentbookingid");
+      localStorage.removeItem("edittimebutton");
+		
+      var $booking = {
+        departtime: '-',
+        starttime: '-',
+        finishtime: '-',
+        returntime: '-',
+        completiondetailid: '0',
+        complete: 'no',
+        edited: 'no',
+        notes: '',
+        issues: ''		
+        };
+
+      var $jsonbookingdata = localStorage.getItem("jsonbookingdata");
+      if($jsonbookingdata) {
+        var $bookingdata = JSON.parse($jsonbookingdata);
+        if(!$bookingdata[$bookingid]) $bookingdata[$bookingid] = $booking;
+        else $booking = $bookingdata[$bookingid];
+        }
+      else {
+        var $bookingdata = {};
+        }
+  
+      $(document).ready(function() {
+        pageinitialisation();
+	    drawtable($bookingid);
+ 	    displaytimes($booking);
+		document.getElementById("notes").innerHTML = $booking.notes;
+        }); // end of document ready
+ 
+      function backbuttonpressed() { 
+        window.location.replace("bookedjoblist.html");
+        }  
+   
+      function drawtable($dt_bookingid) {
+        jsonjobarray = localStorage.getItem("jsonjobarray");
+        jobarray = JSON.parse(jsonjobarray);
+        var tablecontent = '';
+  
+        // loop through bookings
+        for (var $item in jobarray) {
+          // some browsers add more properties to every object, we don't want those
+          if (jobarray.hasOwnProperty($item)) {
+		    $jobarraybookingid = jobarray[$item].bookingid;
+            if($jobarraybookingid==$dt_bookingid) {		
+	        //bookingid = $item;
+	  
+	        date = jobarray[$item].date;
+            var myDate = new Date(date);
+            datestring = formatdate(myDate);
+            tablecontent += '<p class="joblist"><b>'+datestring + '</b>';
+	        tablecontent += '</p>';
+	  
+            tablecontent += '<table border="1" cellpadding="4" cellspacing="0" width="258" class="small">';
+	        tablecontent += '<tr><td>ID:</td><td>'+jobarray[$item].bookingid+'</td></tr>';
+	        tablecontent += '<tr><td>Type:</td><td>'+jobarray[$item].type+'</td></tr>';
+	        tablecontent += '<tr><td>Customer:</td><td>'+jobarray[$item].customer+'</td></tr>';
+	        $decodeddetail = hex2bin(jobarray[$item].detail);
+	        tablecontent += '<tr><td>Detail:</td><td>'+$decodeddetail+'</td></tr>';
+	        tablecontent += '<tr><td>Project No.:</td><td>'+jobarray[$item].projectnumber+'</td></tr>';
+	        tablecontent += '<tr><td>Project:</td><td>'+jobarray[$item].description+'</td></tr>';
+	        tablecontent += '<tr><td>Timeslot:</td><td>'+jobarray[$item].timeslot+'</td></tr>';
+	        tablecontent += '<tr><td>Length:</td><td>'+jobarray[$item].length+'</td></tr>';
+	        tablecontent += '<tr><td>Location:</td><td>'+jobarray[$item].location+'</td></tr>';
+	        tablecontent += '<tr><td>Town:</td><td>'+jobarray[$item].town+'</td></tr>';
+	        tablecontent += '<tr><td>Postcode:</td><td>'+jobarray[$item].postcode+'</td></tr>';
+            tablecontent += '</table><br />';
+            }
+          }
+        document.getElementById("body").innerHTML = tablecontent;   
+        } 
+      }
+  
+      function showjobcompletionmenu($completiondetailid) {
+        $jsonjobcompletionlist = localStorage.getItem("jsonjobcompletionlist");
+        var $selected;
+        if($jsonjobcompletionlist!='') {
+          $jobcompletionlist = JSON.parse($jsonjobcompletionlist);
+          for (var $item in $jobcompletionlist) {
+            // some browsers add more properties to every object, we don't want those
+	        $selected = '';
+            if ($jobcompletionlist.hasOwnProperty($item)) {
+	          //$jobcompletionid = $item;  //  remove if not needed!
+	          $jobcompletiondetail = $jobcompletionlist[$item];
+		      if($completiondetailid==$item) $selected = " selected";
+		      document.write('<option value="'+$item+'"'+$selected+' onclick="alert($bookingid)">'+$jobcompletiondetail+'</option>');
+	          }
+	        } 
+	      }
+        }
+  
+      function showtimingbuttons() {
+        document.write('<table width="100%">');
+          document.write('<tr><td width="86">');
+            document.write('<a data-role="button" data-theme="b" onclick="departbuttonpressed()">Depart</a>');
+          document.write('</td><td width="5"></td><td>');
+	        document.write('<div id="departtime" class="jobtimes"></div>');
+	      document.write('</td></tr>');
+	      document.write('<tr><td>');
+	        document.write('<a data-role="button" data-theme="b" onclick="startbuttonpressed()">Start</a>');
+	      document.write('</td><td></td><td>');
+            document.write('<div id="starttime" class="jobtimes"></div>');
+	      document.write('</td></tr>');
+	      document.write('<tr><td>');
+            document.write('<a data-role="button" data-theme="b" onclick="finishbuttonpressed()">Finish</a>');
+	      document.write('</td><td></td><td>');
+            document.write('<div id="finishtime" class="jobtimes"></div>');
+	      document.write('</td></tr>');
+	      document.write('<tr><td>');
+            document.write('<a data-role="button" data-theme="b" onclick="returnbuttonpressed()">Return</a>');
+	      document.write('</td><td></td><td>');
+            document.write('<div id="returntime" class="jobtimes"></div>');
+          document.write('</td></tr>');
+        document.write('</table>');
+        }
+		
+	  function showissuecheckboxes() {
+	    var $issuesstring = $booking.issues;
+		var $issuechecked = [];
+		var $issuesarray = $issuesstring.split(',');
+		for (var $issueid in $issuesarray) {
+		  $issuechecked[$issuesarray[$issueid]] = true;
+		  }
+        $jsonissueslist = localStorage.getItem("jsonissueslist");
+        if($jsonissueslist!='') {
+          $issueslist = JSON.parse($jsonissueslist);
+          for (var $item in $issueslist) {
+            // some browsers add more properties to every object, we don't want those
+            if ($issueslist.hasOwnProperty($item)) {
+	          $issue = $issueslist[$item];
+			  $checkedstring = '';
+			  if($issuechecked[$item]) $checkedstring = ' checked';
+			  $checkboxref = 'checkbox-' + $item;
+		      document.write('<input type="checkbox" name="'+$checkboxref+'" id="'+$checkboxref+'"'+$checkedstring+' value="'+$item+'" class="custom"  onchange="issuescheckboxchanged()"/>');
+		      document.write('<label for="'+$checkboxref+'">'+$issue+'</label>');
+	          }
+	        } 
+	      }
+        
+		}
+		
+	  function issuescheckboxchanged() {
+		$issuesstring = '';
+		$("input:checkbox:checked").each( function() {
+		  $issuesstring = $issuesstring + $(this).attr('value') + ",";
+		  });
+		$issuesstring = $issuesstring.slice(0, -1);
+        $booking.issues = $issuesstring;
+        displayandstore();		
+		}
+		
+      function savebuttonpressed() { 
+        if($booking.completiondetailid==0) alert("The job cannot be completed because it's status is 'In Progress'");
+        else {
+          var $departtimetimestamp = '-';
+          var $starttimetimestamp = '-';
+          var $finishtimetimestamp = '-';
+          var $returntimetimestamp = '-';
+          if($booking.departtime!='-') $departtimetimestamp = parsedate($booking.departtime);
+          if($booking.starttime!='-') $starttimetimestamp = parsedate($booking.starttime);
+          if($booking.finishtime!='-') $finishtimetimestamp = parsedate($booking.finishtime);
+          if($booking.returntime!='-') $returntimetimestamp = parsedate($booking.returntime);
+	      var $datesvalid = true;
+	      if ($departtimetimestamp!='-' && $starttimetimestamp!='-') {
+	        if($starttimetimestamp<$departtimetimestamp) $datesvalid = false;
+	        }
+	      if ($starttimetimestamp!='-' && $finishtimetimestamp!='-') {
+	        if($finishtimetimestamp<$starttimetimestamp) $datesvalid = false;
+	        }
+	      if ($finishtimetimestamp!='-' && $returntimetimestamp!='-') {
+	        if($returntimetimestamp<$finishtimetimestamp) $datesvalid = false;
+	        }
+          if($datesvalid==false) alert('Please correct the dates or times, one or more of the entries are not in sequence');
+	      else if($booking.starttime=='-' || $booking.finishtime=='-') {
+	        alert('The job cannot be completed because either the Start time or the Finish time has not been set');
+	        }
+	      else {
+            $booking.complete = 'yes';
+            $bookingdata[$bookingid] = $booking;
+            var $jsonbookingdata = JSON.stringify($bookingdata);
+            localStorage.setItem("jsonbookingdata",$jsonbookingdata);
+            //alert($jsonbookingdata);
+            //uploadlocalbookingdata();
+            window.location.replace("bookedjoblist.html");
+	        }
+	      }
+        }
+  
+      function parsedate($input) {   // parse a date in dd/mm/yyyy hh:mm format
+        var $datetimeparts = $input.split(' ');
+        var $dateparts = $datetimeparts[0].split('/');
+        var $timeparts = $datetimeparts[1].split(':');
+        // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
+        return new Date($dateparts[2],$dateparts[1]-1,$dateparts[0],$timeparts[0],$timeparts[1]); // months are 0-based
+        }
+  
+/*function gpstest(){ // *******  NOT CHECKED  *****************
+  var gps = navigator.geolocation;
+  alert(gps);
+  if (gps) gps.getCurrentPosition(displayposition);
+  }*/
+	
+/*function displayposition(position){ // *******  NOT CHECKED  *****************
+  alert("Latitude: "+position.coords.latitude);
+  }*/
+
+      function getshortdatestring(sourcedate) {
+        var localdate = sourcedate.getDate();
+        if(localdate<10) localdate = '0' + localdate;
+        var localmonth = sourcedate.getMonth() + 1;
+        if(localmonth<10) localmonth = '0' + localmonth;
+        var localyear = sourcedate.getFullYear();
+        var localhours = sourcedate.getHours();
+        if(localhours<10) localhours = '0' + localhours;
+        var localminutes = sourcedate.getMinutes();
+        if(localminutes<10) localminutes = '0' + localminutes;
+        localdatestring = localdate+'/'+localmonth+'/'+localyear+' '+localhours+':'+localminutes;
+        return localdatestring;
+        }
+  
+      function displaytimes($dt_booking) {
+        document.getElementById("departtime").innerHTML = $dt_booking.departtime;
+        document.getElementById("starttime").innerHTML = $dt_booking.starttime;
+        document.getElementById("finishtime").innerHTML = $dt_booking.finishtime;
+        document.getElementById("returntime").innerHTML = $dt_booking.returntime;
+        } 
+  
+      function displayandstore() {
+        displaytimes($booking);
+        $bookingdata[$bookingid] = $booking;
+        var $jsonbookingdata = JSON.stringify($bookingdata);
+        localStorage.setItem("jsonbookingdata",$jsonbookingdata);  
+        }
+  
+      function departbuttonpressed() {
+        if($booking.departtime=='-' &&
+           $booking.starttime=='-' &&
+	       $booking.finishtime=='-' &&
+	       $booking.returntime=='-') {
+          var departtime = new Date
+          $booking.departtime = getshortdatestring(departtime);
+          displayandstore();
+          }
+        else {
+		  localStorage.setItem("edittimebutton","depart");
+		  window.location.replace("edittimes.html");
+          }
+        }
+  
+      function startbuttonpressed() {
+        if($booking.starttime=='-' &&
+           $booking.finishtime=='-' &&
+	       $booking.returntime=='-') {
+          var starttime = new Date
+          $booking.starttime = getshortdatestring(starttime);
+          displayandstore();
+	      }
+        else {
+		  localStorage.setItem("edittimebutton","start");
+		  window.location.replace("edittimes.html");
+          }
+		}
+  
+      function finishbuttonpressed() {
+        if($booking.finishtime=='-' &&
+	       $booking.returntime=='-') {
+          var finishtime = new Date
+          $booking.finishtime = getshortdatestring(finishtime);
+          displayandstore();
+	      }
+        else {
+		  localStorage.setItem("edittimebutton","finish");
+		  window.location.replace("edittimes.html");
+          }
+        }
+  
+      function returnbuttonpressed() {
+        if($booking.returntime=='-') {
+          var returntime = new Date
+          $booking.returntime = getshortdatestring(returntime);
+          displayandstore();
+          }
+        else {
+		  localStorage.setItem("edittimebutton","return");
+		  window.location.replace("edittimes.html");
+          }
+        }
+   
+      function selectcompletionvalue($selectedcompletionoption) { 
+        var $value = $selectedcompletionoption.options[$selectedcompletionoption.selectedIndex].value;
+        $booking.completiondetailid = $value;
+        displayandstore();
+        }
+  
+      function hex2bin(hex) {
+        var bytes = [], str;
+        for(var i=0; i< hex.length-1; i+=2) {
+          bytes.push(parseInt(hex.substr(i, 2), 16));
+	      }
+        return String.fromCharCode.apply(String, bytes);
+        }
+		
+	  function noteschanged() {
+	    $newnotes = $("#notes").val();
+		$booking.notes = $newnotes;
+		displayandstore();
+		}
+
+    </script>
+	
+  </head>
+  
+  <body>		
+		
+    <div data-role="page" id="page1">
+      <div data-role="content">
+	  
+        <a id="backbutton" data-role="button" data-inline="true" data-theme="b" onclick="backbuttonpressed()" data-icon="back" data-iconpos="left">
+          Back
+        </a>
+        <a data-role="button" data-inline="true" data-theme="b" onclick="savebuttonpressed()">
+          Complete Job
+        </a>
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	  <div data-role="collapsible-set" data-content-theme="d">
+          <div data-role="collapsible" data-collapsed="true">
+            <h3>
+              Job Detail
+            </h3>
+            <div id="list" class="ui-grid-a">
+              <div id='body'></div>
+            </div>
+          </div>
+		  
+      
+	
+	    <!--<div data-role="collapsible-set" data-content-theme="d">-->
+          <div data-role="collapsible" data-collapsed="false">
+            <h3>
+              Job Timing
+            </h3>
+		    <script>showtimingbuttons()</script>
+          </div>
+        <!--</div>
+		
+	    <div data-role="collapsible-set" data-content-theme="d">-->
+          <div data-role="collapsible" data-collapsed="true">
+            <h3>
+              Issues
+            </h3>
+			<fieldset data-role="controlgroup" id="issues">
+		      <legend>Choose all that apply:</legend>
+			  <script>showissuecheckboxes()</script>
+		    </fieldset>
+          </div>
+        <!--</div>
+		
+	    <div data-role="collapsible-set" data-content-theme="d">-->
+          <div data-role="collapsible" data-collapsed="true">
+            <h3>
+              Notes
+            </h3>
+            <!--<label for="notes">Notes:</label>-->
+            <textarea name="notes" rows="8" id="notes" onchange="noteschanged()"></textarea>		    
+          </div>
+        </div>
+		
+
+
+        <div data-role="fieldcontain" id="completionmenu" class="completionmenuclass">
+          <label for="completionmenu">
+            Completion status:
+          </label>
+          <select id="completionmenu" data-native-menu="true" name="Completion Menu" data-theme="b" onchange="selectcompletionvalue(this)">
+	        <script>showjobcompletionmenu($booking.completiondetailid)</script>
+          </select>
+        </div>
+		
+				</div>
+		
+      </div>
+    </div>
+
+  </body>
+  
+</html>
+
