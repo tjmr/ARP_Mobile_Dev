@@ -24,7 +24,9 @@
 
     <script>
 
-      $(document).ready(function() {
+ 	 $rootpath = localStorage.getItem("rootpath");
+
+     $(document).ready(function() {
         pageinitialisation();
   
 	    $("#backbutton").click(function() {
@@ -42,7 +44,7 @@
 			  $dateto = getdatevalue($datetodate);
 		      $parameters = $engineerid + "&" + $engineername + "&" + $datefrom + "&" + $dateto;
 			  $.mobile.loading('show');
-              $.post("ajax/emailworksummary.php",{parameters:$parameters},function() {
+              $.post($rootpath + "ajax/emailworksummary.php",{parameters:$parameters},function() {
 				$.mobile.loading('hide');
 				$("#emailsentpopup").popup("open");
 		        });
