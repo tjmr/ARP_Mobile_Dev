@@ -251,6 +251,7 @@ function downloadjobs($engineerid,callback) { // ONLY WORKS ONLINE BUT CAN BE CA
   $rootpath = localStorage.getItem("rootpath");
   onlinecheck(function(result) { 
     if(result==true) { // online code here	    //  *****   CHECK $.AJAX TO HANDLE TIMEOUT     ********
+	  $.mobile.loading('show');
       $.post($rootpath + "getbookedjobs.php",{engineerid:$engineerid},function(data,status) {
         var $jsonjobanddataarray = data;
 	    //alert($jsonjobanddataarray);
@@ -320,7 +321,8 @@ function downloadjobs($engineerid,callback) { // ONLY WORKS ONLINE BUT CAN BE CA
 		  
 		  
 		$jobarray.sort(compare);  
-		  
+
+		$.mobile.loading('hide');
 		  
 	    var $jsonjobarray = JSON.stringify($jobarray);
         localStorage.removeItem("jsonjobarray");
