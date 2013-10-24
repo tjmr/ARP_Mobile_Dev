@@ -3,8 +3,8 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "uk.co.rhodesnet.arpmobile"
-        version   = "1.0.461">
+        id        = "uk.co.rhodesnet.arpmobiledev"
+        version   = "1.0.462">
 
     <name>ARP Mobile Dev</name>
 
@@ -29,6 +29,10 @@
         following tag to your config.xml; you will still have the INTERNET
         permission on your app, which PhoneGap requires.
     -->
+	
+	<preference name="splash-screen-duration" value="500"/>
+	<preference name="permissions" value="none"/>
+	
     <!--<preference name="permissions"                value="none"/>-->
 
     <!-- Customize your app and platform with the preference element. -->
