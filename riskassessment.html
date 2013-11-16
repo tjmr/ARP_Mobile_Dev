@@ -1,0 +1,557 @@
+<!--
+
+-->
+
+<!DOCTYPE html>
+
+<html manifest="../cache.manifest">
+
+  <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" type="text/css" href="js/mobiletheme.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.mobile.min.css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/include.js"></script>
+    <script src="js/jquery.mobile.min.js"></script>
+    <title>ARP Mobile</title>
+
+    <script>
+	
+  	  //$rootpath = localStorage.getItem("rootpath");
+	  
+  	  var $bookingid = localStorage.getItem("currentbookingid");
+
+      var $riskassessment = {
+        rastartedtimestamp: '',
+        customerra: '',	
+        evacuation: '',	
+        manualhandling: '',
+        electricalsafety: '',
+        electricalsafetynotes: '',
+        electricalsafetyescalationnotes: '',
+        asbestos: '',
+        workingatheight: '',
+        additionalrisks: '',
+        additionalrisksnotes: '',
+        confirmation: '',
+        status: 'Not Started',
+        racompletedtimestamp: ''	
+        };
+			
+      var $jsonriskassessmentdata = localStorage.getItem("jsonriskassessmentdata");
+      if($jsonriskassessmentdata) {
+        var $riskassessmentdata = JSON.parse($jsonriskassessmentdata);
+        if(!$riskassessmentdata[$bookingid]) $riskassessmentdata[$bookingid] = $riskassessment;
+        else $riskassessment = $riskassessmentdata[$bookingid];
+        }
+      else {
+        var $riskassessmentdata = {};
+        }
+		
+      $(document).ready(function() {
+        pageinitialisation();
+		$('#esnotes').val($riskassessment.electricalsafetynotes);
+		$('#esescalationnotes').val($riskassessment.electricalsafetyescalationnotes);
+        $('#additionalrisks').val($riskassessment.additionalrisksnotes);
+
+	    $("#p1continue").click(function() { // *** Start ***   Done
+          if($riskassessment.rastartedtimestamp=='') {
+		    var $starttimestamp = new Date
+            $riskassessment.rastartedtimestamp = getshortdatestring($starttimestamp);
+            $riskassessment.status = 'In Progress';
+            store();
+		    }
+		  window.location.replace("#page2");
+          }); // end of p1continue
+  
+	    $("#p2yes").click(function() { // *** Customer Generic Risk Assessment ***   Done
+		  $riskassessment.customerra = 'Yes';
+		  store();
+          window.location.replace("#page3");
+          }); // end of p2yes
+  
+	    $("#p2no").click(function() { // *** Customer Generic Risk Assessment ***   Done
+		  $riskassessment.customerra = 'No';
+		  store();
+          window.location.replace("#page3");
+          }); // end of p2no
+  
+	    $("#p2nonesent").click(function() { // *** Customer Generic Risk Assessment ***   Done
+		  $riskassessment.customerra = 'None Sent';
+		  store();
+          window.location.replace("#page3");
+          }); // end of p2nonesent
+  
+	    $("#p3yes").click(function() { // *** Evacuation ***   Done
+		  $riskassessment.evacuation = 'Yes';
+		  store();
+          window.location.replace("#page4");
+          }); // end of p3yes
+  
+	    $("#p3agree").click(function() { // *** Evacuation ***   Done
+		  $riskassessment.evacuation = 'Agree';
+		  store();
+          window.location.replace("#page4");
+          }); // end of p3agree
+  
+	    $("#p4no").click(function() { // *** Manual Handling ***   Done
+		  $riskassessment.manualhandling = 'No';
+		  store();
+          window.location.replace("#page5");
+          }); // end of p4no
+  
+	    $("#p4agree").click(function() { // *** Manual Handling ***   Done
+		  $riskassessment.manualhandling = 'Agree';
+		  store();
+          window.location.replace("#page5");
+          }); // end of p4agree
+  
+	    $("#p5yes").click(function() { // *** Electrical Safety ***   Done
+		  $riskassessment.electricalsafety = 'Yes';
+		  store();
+          window.location.replace("#page6");
+          }); // end of p5yes
+  
+	    $("#p5no").click(function() { // *** Electrical Safety ***   Done
+		  $riskassessment.electricalsafety = 'No';
+		  store();
+          window.location.replace("#page10");
+          }); // end of p5no
+  
+	    $("#p6yes").click(function() { // *** Electrical Safety Mitigation ***   Done
+		  $riskassessment.electricalsafety = 'Risk Mitigated';
+		  store();
+          window.location.replace("#page7");
+          }); // end of p6yes
+  
+	    $("#p6agree").click(function() { // *** Electrical Safety Escalation ***   Done
+		  $riskassessment.electricalsafety = 'Escalated';
+		  store();
+          window.location.replace("#page8");
+          }); // end of p6confirm
+  
+	    $("#p7confirm").click(function() { // *** Electrical Safety Notes ***   Done
+          $electricalsafetynotes = $('#esnotes').val();
+		  //  **** CHECK FOR EMPTY NOTES FIELD ****
+		  $riskassessment.electricalsafetynotes = $electricalsafetynotes;
+		  store();
+          window.location.replace("#page10");
+          }); // end of p7confirm
+  
+	    $("#p8confirm").click(function() { // *** Electrical Safety Escalation Notes ***   Done
+          $electricalsafetyescalationnotes = $('#esescalationnotes').val();
+		  //  **** CHECK FOR EMPTY NOTES FIELD ****
+		  $riskassessment.electricalsafetyescalationnotes = $electricalsafetyescalationnotes;
+		  store();
+          window.location.replace("#page10");
+          }); // end of p8confirm
+  
+	    $("#p8abort").click(function() { // *** Electrical Safety Abort ***   Done
+		  $riskassessment.electricalsafety = 'Job Aborted';
+		  store();
+          window.location.replace("#page9");
+          }); // end of p8abort
+  
+	    $("#p9ok").click(function() { // *** ABORT ***   Done
+		  $riskassessment.status = 'Complete';
+		  store();
+          window.location.replace("bookingdetail.html");
+          }); // end of p9ok
+  
+	    $("#p10no").click(function() { // *** Asbestos Safety ***   Done
+		  $riskassessment.asbestos = 'No';
+		  store();
+          window.location.replace("#page11");
+          }); // end of p10no
+  
+	    $("#p10agree").click(function() { // *** Asbestos Safety ***   Done
+		  $riskassessment.asbestos = 'Agree';
+		  store();
+          window.location.replace("#page11");
+          }); // end of p10agree
+  
+	    $("#p11no").click(function() { // *** Working at Height ***   Done
+		  $riskassessment.workingatheight = 'No';
+		  store();
+          window.location.replace("#page12");
+          }); // end of p11no
+  
+	    $("#p11agree").click(function() { // *** Working at Height ***   Done
+		  $riskassessment.workingatheight = 'Agree';
+		  store();
+          window.location.replace("#page12");
+          }); // end of p11agree
+  
+	    $("#p12no").click(function() { // *** Additional Risks ***   Done
+		  $riskassessment.additionalrisks = 'No';
+		  store();
+          window.location.replace("#page14");
+          }); // end of p12no
+  
+	    $("#p12yes").click(function() { // *** Additional Risks ***   Done
+		  $riskassessment.additionalrisks = 'Yes';
+		  store();
+          window.location.replace("#page13");
+          }); // end of p12yes
+  
+	    $("#p13confirm").click(function() { // *** Additional Risks ***   Done
+          $additionalrisksnotes = $('#additionalrisks').val();
+		  //  **** CHECK FOR EMPTY NOTES FIELD ****
+		  $riskassessment.additionalrisksnotes = $additionalrisksnotes;
+		  store();		  
+		  window.location.replace("#page14");
+          }); // end of p13confirm
+  
+	    $("#p14agree").click(function() { // *** ASSESSMENT COMPLETE ***   Done
+		  var $endtimestamp = new Date
+          $riskassessment.racompletedtimestamp = getshortdatestring($endtimestamp);
+		  $riskassessment.confirmation = 'Agree';
+          $riskassessment.status = 'Complete';
+          store();
+          window.location.replace("bookingdetail.html");
+          }); // end of p14agree
+  
+        }); // end of DOM ready	
+	
+      function store() {
+        $riskassessmentdata[$bookingid] = $riskassessment;
+        var $jsonriskassessmentdata = JSON.stringify($riskassessmentdata);
+        localStorage.setItem("jsonriskassessmentdata",$jsonriskassessmentdata);  
+        }	
+  
+      function getshortdatestring(sourcedate) {
+        var localdate = sourcedate.getDate();
+        if(localdate<10) localdate = '0' + localdate;
+        var localmonth = sourcedate.getMonth() + 1;
+        if(localmonth<10) localmonth = '0' + localmonth;
+        var localyear = sourcedate.getFullYear();
+        var localhours = sourcedate.getHours();
+        if(localhours<10) localhours = '0' + localhours;
+        var localminutes = sourcedate.getMinutes();
+        if(localminutes<10) localminutes = '0' + localminutes;
+        localdatestring = localdate+'/'+localmonth+'/'+localyear+' '+localhours+':'+localminutes;
+        return localdatestring;
+        }
+  
+    </script>
+
+  </head>
+
+  <body>
+
+    <!-- Page 1 : start -->
+    <div data-role="page" id="page1">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment</h3>
+      </div>	  
+      <div data-role="content">
+	    <div class="small">
+		  <p>
+		    The following set of questions form a Risk Assessment of the site and the work you are about to undertake.  Each question must be answered.  Please answer each question correctly, and ensure you comply with all health and safety working practices and guidelines as covered in the health and safety training you have received.  Should you have any concerns about the safety of the working environment you have been asked to work in, please note it properly on this form, and follow the relevant guidelines and processes to maximise safety and reduce unnecessary risk.
+		  </p>		
+        </div>
+		<p><a  id="p1continue" data-theme="b" data-role="button">Continue</a></p>
+	  </div><!-- /content -->
+    </div><!-- /page1 -->
+
+    <!-- Page 2 : customer generic risk assessment -->
+    <div data-role="page" id="page2">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment</h3>
+      </div>	  
+      <div data-role="content">
+		<div>
+		  <p><strong>
+		    Have you read the customer's generic risk assessment?
+		  </strong></p>
+        </div>
+		<div class="small">
+		  <p><em>
+		    If the customer has a generic risk assessment it should have been provided as part of the work pack.<br/>
+		  </em></p>		
+          <p>&nbsp;</p>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a id="p2yes" data-theme="b" data-role="button">Yes</a></div>
+		  <div class="ui-block-b"><a id="p2no" data-theme="a" data-role="button">No</a></div>
+        </div>
+		<div class="ui-grid-solo">
+		  <div class="ui-block-a"><a id="p2nonesent" data-theme="c" data-role="button">None Sent</a></div>
+		</div>
+	  </div><!-- /content -->
+    </div><!-- /page2 -->
+
+    <!-- Page 3 : evacuation -->
+    <div data-role="page" id="page3">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Evacuation</h3>
+      </div>	  
+      <div data-role="content">
+		<div>
+		  <p><strong>
+		    In the location you are working, have you identified an escape route in the event of an evacuation?
+		  </strong></p>
+		  <p>&nbsp;</p>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a id="p3yes" data-theme="b" data-role="button">Yes</a></div>
+		  <div class="ui-block-b"><a href="#p3popupdialog" data-theme="a" data-rel="popup" data-position-to="window" data-role="button" data-transition="pop">No</a></div>
+        </div>
+        <div data-role="popup" id="p3popupdialog" data-overlay-theme="a" data-theme="c" style="max-width:400px;" class="ui-corner-all">
+		  <div data-role="content" data-theme="d" class="ui-corner-bottom ui-content">
+		  	<p>Please speak to the customer contact or identify the means of escape.</p>  
+			<p>&nbsp;</p>
+			<a id="p3agree" data-role="button" data-transition="flow" data-theme="b">Agree</a>
+		  </div>
+		</div>
+	  </div><!-- /content -->
+    </div><!-- /page3 -->
+
+    <!-- Page 4 : manual handling -->
+    <div data-role="page" id="page4">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Manual Handling</h3>
+      </div>	  
+      <div data-role="content">
+		<div>
+		  <p><strong>
+		    Are you required to lift, handle, or move oversized or heavy equipment?
+		  </strong></p>
+		  <p>&nbsp;</p>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a href="#p4popupdialog" data-theme="b" data-rel="popup" data-position-to="window" data-role="button" data-transition="pop">Yes</a></div> 
+		  <div class="ui-block-b"><a id="p4no" data-theme="a" data-role="button">No</a></div>
+        </div>
+        <div data-role="popup" id="p4popupdialog" data-overlay-theme="a" data-theme="c" style="max-width:400px;" class="ui-corner-all">
+		  <div data-role="content" data-theme="d" class="ui-corner-bottom ui-content">
+		  	<p>Please ensure you use correct manual handling techniques as covered in the Health and Safety training.</p>  
+			<p>&nbsp;</p>
+			<a id="p4agree" data-role="button" data-transition="flow" data-theme="b">Agree</a>
+		  </div>
+		</div>
+	  </div><!-- /content -->
+    </div><!-- /page4 -->
+
+    <!-- Page 5 : electrical safety -->
+    <div data-role="page" id="page5">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Electrical Safety</h3>
+      </div>	  
+      <div data-role="content">
+		<div>
+		  <p><strong>
+		    In the area you are working, are there any visible electrical hazards?
+		  </strong></p>
+		  <p>&nbsp;</p>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a id="p5yes" data-theme="b" data-role="button">Yes</a></div> 
+		  <div class="ui-block-b"><a id="p5no" data-theme="a" data-role="button">No</a></div>
+        </div>
+	  </div><!-- /content -->
+    </div><!-- /page5 -->
+
+    <!-- Page 6 : electrical safety mitigation -->
+    <div data-role="page" id="page6">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Electrical Safety</h3>
+      </div>	  
+      <div data-role="content">
+		<div>
+		  <p><strong>
+		    Can the risk of hazard be reduced to an acceptable level?
+		  </strong></p>
+		  <p>&nbsp;</p>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a id="p6yes" data-theme="b" data-role="button">Yes</a></div>
+		  <div class="ui-block-b"><a href="#p6popupdialog" data-theme="a" data-rel="popup" data-position-to="window" data-role="button" data-transition="pop">No</a></div>
+        </div>
+        <div data-role="popup" id="p6popupdialog" data-overlay-theme="a" data-theme="c" style="max-width:400px;" class="ui-corner-all">
+		  <div data-role="content" data-theme="d" class="ui-corner-bottom ui-content">
+		  	<p><strong>Please escalate the electrical hazard to:</strong></p>
+            <ol>
+              <li>The Site Contact</li>
+              <li>The Project Manager or Coordinator</li>
+              <li>Your Line Manager</li>
+            </ol>  
+			<p>&nbsp;</p>
+			<a id="p6agree" data-role="button" data-transition="flow" data-theme="b">Agree</a>
+		  </div>
+		</div>
+	  </div><!-- /content -->
+    </div><!-- /page6 -->
+
+    <!-- Page 7 : electrical safety mitigation notes -->
+    <div data-role="page" id="page7">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Electrical Safety</h3>
+      </div>	  
+      <div data-role="content">
+		<div class="small">
+		  <p>
+		    Please detail what control measures were used to reduce the risk of electrical hazard:
+		  </p>
+          <textarea name="esnotes" rows="8" id="esnotes"  data-theme="c"></textarea>
+        </div>
+		<div>
+		  <br/>
+		  <a id="p7confirm" data-theme="b" data-role="button">Confirm</a>
+        </div>
+	  </div><!-- /content -->
+    </div><!-- /page7 -->
+
+    <!-- Page 8 : electrical safety escalation action -->
+    <div data-role="page" id="page8">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Electrical Safety</h3>
+      </div>	  
+      <div data-role="content">
+		<div class="small">
+		  <p>
+		    Please confirm the action taken, and by whom, to remove the electrical hazard:
+		  </p>
+          <textarea name="esescalationnotes" rows="8" id="esescalationnotes"  data-theme="c"></textarea>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a id="p8confirm" data-theme="b" data-role="button">Confirm</a></div> 
+		  <div class="ui-block-b"><a id="p8abort" data-theme="a" data-role="button">Abort</a></div>
+        </div>
+	  </div><!-- /content -->
+    </div><!-- /page8 -->
+
+    <!-- Page 9 : abort -->
+    <div data-role="page" id="page9">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Abort</h3>
+      </div>	  
+      <div data-role="content">
+		<div>
+		  <p><strong>
+		    Due to the highlighted Health and Safety risk, this work cannot continue.  Please notify all relevant parties and leave site.
+		  </strong></p>
+		  <p>&nbsp;</p>
+        </div>
+		<div>
+		  <a id="p9ok" data-theme="b" data-role="button">Ok</a>
+        </div>
+	  </div><!-- /content -->
+    </div><!-- /page9 -->
+
+    <!-- Page 10 : asbestos safety -->
+    <div data-role="page" id="page10">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Asbestos Safety</h3>
+      </div>	  
+      <div data-role="content">
+		<div>
+		  <p><strong>
+		    Have you been made aware of any risk of asbestos in the area you are working?
+		  </strong></p>
+		  <p>&nbsp;</p>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a href="#p10popupdialog" data-theme="b" data-rel="popup" data-position-to="window" data-role="button" data-transition="pop">Yes</a></div> 
+		  <div class="ui-block-b"><a id="p10no" data-theme="a" data-role="button">No</a></div>
+        </div>
+        <div data-role="popup" id="p10popupdialog" data-overlay-theme="a" data-theme="c" style="max-width:400px;" class="ui-corner-all">
+		  <div data-role="content" data-theme="d" class="ui-corner-bottom ui-content">
+		  	<p>Speak to the site manager and follow the customer's written procedures for working in the area, and Azzurri's asbestos policy.</p>  
+			<p>&nbsp;</p>
+			<a id="p10agree" data-role="button" data-transition="flow" data-theme="b">Agree</a>
+		  </div>
+		</div>
+	  </div><!-- /content -->
+    </div><!-- /page10 -->
+
+    <!-- Page 11 : working at height -->
+    <div data-role="page" id="page11">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Working at Height</h3>
+      </div>	  
+      <div data-role="content">
+		<div>
+		  <p><strong>
+		    Is there a requirement to work at height (above floor level)?
+		  </strong></p>
+		  <p>&nbsp;</p>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a href="#p11popupdialog" data-theme="b" data-rel="popup" data-position-to="window" data-role="button" data-transition="pop">Yes</a></div> 
+		  <div class="ui-block-b"><a id="p11no" data-theme="a" data-role="button">No</a></div>
+        </div>
+        <div data-role="popup" id="p11popupdialog" data-overlay-theme="a" data-theme="c" style="max-width:400px;" class="ui-corner-all">
+		  <div data-role="content" data-theme="d" class="ui-corner-bottom ui-content">
+		  	<p>Please ensure you use correct working at height techniques as covered in the Health and Safety training.</p>  
+			<p>&nbsp;</p>
+			<a id="p11agree" data-role="button" data-transition="flow" data-theme="b">Agree</a>
+		  </div>
+		</div>
+	  </div><!-- /content -->
+    </div><!-- /page11 -->
+
+    <!-- Page 12 : additional risks -->
+    <div data-role="page" id="page12">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Additional Risks</h3>
+      </div>	  
+      <div data-role="content">
+		<div>
+		  <p><strong>
+		    Have you identified any additional risks?
+		  </strong></p>
+		  <p>&nbsp;</p>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a id="p12yes" data-theme="b" data-role="button">Yes</a></div>
+		  <div class="ui-block-b"><a id="p12no" data-theme="a" data-role="button">No</a></div>
+        </div>
+	  </div><!-- /content -->
+    </div><!-- /page12 -->
+
+    <!-- Page 13 : additional risks notes -->
+    <div data-role="page" id="page13">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Risk Assessment - Additional Risks</h3>
+      </div>	  
+      <div data-role="content">
+		<div class="small">
+		  <p>
+		    Please detail all additional risks you have identified:
+		  </p>
+          <textarea name="additionalrisks" rows="8" id="additionalrisks"  data-theme="c"></textarea>
+	    </div>
+		<div>
+		  <br/>
+		  <a id="p13confirm" data-theme="b" data-role="button">Confirm</a>
+        </div>
+	  </div><!-- /content -->
+    </div><!-- /page13 -->
+
+    <!-- Page 14 : end -->
+    <div data-role="page" id="page14">
+      <div class="ui-bar ui-bar-b">
+	    <h3>Working Safety</h3>
+      </div>	  
+      <div data-role="content">
+	    <div>
+	      <p>
+		    <h5>Risk Assessment Complete</h5>
+		    Please complete your work in line with Health and Safety guidelines and procedures.  In the event of an accident or incident ensure you report it to the site contact, your line manager, and the Azzurri Facilities department.
+		  </p>		
+        </div>
+		<p><a id="p14agree" data-theme="b" data-role="button">Agree</a></p>
+	  </div><!-- /content -->
+    </div><!-- /page14 -->
+
+  </body>
+
+</html>

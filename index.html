@@ -76,8 +76,16 @@
 	          }
 	        });
           }); // end of worksummarybutton
+		  
+	    $("#adhocjobbutton").click(function() {
+          window.location.replace("adhocjob.html");
+          }); // end of adhocjobbutton
 
-        }); 
+	    $("#riskassessmentbutton").click(function() {
+          window.location.replace("riskassessment.html");
+          }); // end of riskassessmentbutton
+
+        }); // end of DOM ready
   
 // functions
 
@@ -95,9 +103,6 @@
 	        }
 	      });
         }
-
-      /*function adhocbuttonpressed() {
-        window.location.replace("../mobile/adhocjob.html"); }*/
 
       function onlinecheckbuttonpressed() {
         alertshowingonlinestatus(); 
@@ -152,22 +157,33 @@
               <div class='small' id='engineertext'></div>
             </td>
 		    <td align='right' style='vertical-align:middle'>
-		      <span style='font-size:60%'>465d</span>
+		      <span style='font-size:60%'>519d</span>
             </td>
 		  </tr>
         </table>
 
         <hr />
-        <br />
 		
         <ul data-role="listview" data-divider-theme="b" data-inset="true">
           <li data-theme="b"  onclick="bookedjobsbuttonpressed()">Booked Jobs</li>
 	    </ul>
+		
+        <!--<ul data-role="listview" data-divider-theme="b" data-inset="true">
+		  <input type="button" id="adhocjobbutton" data-theme="b" value="Ad-hoc Job"/>
+	    </ul>-->
+		
+        <!--<div data-role="controlgroup">
+		  <input type="button" id="adhocjobbutton" data-theme="b" value="Ad-hoc Job"/>
+		  <input type="button" id="riskassessmentbutton" data-theme="b" value="Risk Assessment"/>
+        </div>-->
+		
         <ul data-role="listview" data-divider-theme="b" data-inset="true">		  
           <!--<li data-theme="b">Surveys</li>-->
           <!--<li data-theme="b"  onclick="adhocbuttonpressed()">Ad-hoc Job</li>-->
           <!--<li data-theme="b"  onclick="getjobsbuttonpressed()">Get Jobs</li>-->
-          <li data-theme="b"  onclick="setupbuttonpressed()">Setup</li>
+          <li data-theme="b" id="adhocjobbutton">Ad-hoc Job</li>
+          <!--<li data-theme="b" id="riskassessmentbutton">Risk Assessment</li>-->
+          <li data-theme="b" onclick="setupbuttonpressed()">Setup</li>
           <li data-theme="b" id="worksummarybutton">Work Summary</li>
           <!--<li data-theme="b"  onclick="erasebuttonpressed()">Erase</li>-->
           <li data-theme="b"  onclick="onlinecheckbuttonpressed()">Online Check</li>

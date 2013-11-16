@@ -25,7 +25,6 @@ when is jobcompletionlist updated?
 
     <script>
 
-      //var $bookingid = getbookingid();
 	  var $bookingid = localStorage.getItem("currentbookingid");
       localStorage.removeItem("edittimebutton");
 		
@@ -40,6 +39,8 @@ when is jobcompletionlist updated?
         notes: '',
         issues: ''		
         };
+		
+	  var $joblocation = '';
 
       var $jsonbookingdata = localStorage.getItem("jsonbookingdata");
       if($jsonbookingdata) {
@@ -50,12 +51,27 @@ when is jobcompletionlist updated?
       else {
         var $bookingdata = {};
         }
+		
+      var $riskassessment = {
+        status: 'Not Started'
+        };
+			
+      var $jsonriskassessmentdata = localStorage.getItem("jsonriskassessmentdata");
+      if($jsonriskassessmentdata) {
+        var $riskassessmentdata = JSON.parse($jsonriskassessmentdata);
+        if($riskassessmentdata[$bookingid]) $riskassessment = $riskassessmentdata[$bookingid];
+        }
   
       $(document).ready(function() {
         pageinitialisation();
 	    drawtable($bookingid);
  	    displaytimes($booking);
 		document.getElementById("notes").innerHTML = $booking.notes;
+		
+	    $("#riskassessmentbutton").click(function() {
+          window.location.replace("riskassessment.html");
+          }); // end of riskassessmentbutton
+		
         }); // end of document ready
  
       function backbuttonpressed() { 
@@ -92,13 +108,19 @@ when is jobcompletionlist updated?
 	        tablecontent += '<tr><td>Timeslot:</td><td>'+jobarray[$item].timeslot+'</td></tr>';
 	        tablecontent += '<tr><td>Length:</td><td>'+jobarray[$item].length+'</td></tr>';
 	        tablecontent += '<tr><td>Location:</td><td>'+jobarray[$item].location+'</td></tr>';
+			$joblocation = jobarray[$item].location; // used to determine if risk assessment is required
 	        tablecontent += '<tr><td>Town:</td><td>'+jobarray[$item].town+'</td></tr>';
 	        tablecontent += '<tr><td>Postcode:</td><td>'+jobarray[$item].postcode+'</td></tr>';
             tablecontent += '</table><br />';
-            }
+		    if($joblocation!=='Customer Site') {
+		      $("#riskassessmentbutton").hide();
+			  $("#riskassessmentstatus").text("Not Applicable");
+		      }
+			else $("#riskassessmentstatus").text($riskassessment.status);
+  		    }
           }
         document.getElementById("body").innerHTML = tablecontent;   
-        } 
+		} 
       }
   
       function showjobcompletionmenu($completiondetailid) {
@@ -166,7 +188,6 @@ when is jobcompletionlist updated?
 	          }
 	        } 
 	      }
-        
 		}
 		
 	  function issuescheckboxchanged() {
@@ -204,6 +225,11 @@ when is jobcompletionlist updated?
 	      else if($booking.starttime=='-' || $booking.finishtime=='-') {
 	        alert('The job cannot be completed because either the Start time or the Finish time has not been set');
 	        }
+	      else if($joblocation=='Customer Site') {		  
+		    if($riskassessment.status=='In Progress' || $riskassessment.status=='Not Started') {
+	          alert('The job cannot be completed because a Risk Assessment has not been completed');
+              }
+			}
 	      else {
             $booking.complete = 'yes';
             $bookingdata[$bookingid] = $booking;
@@ -284,6 +310,9 @@ when is jobcompletionlist updated?
           var starttime = new Date
           $booking.starttime = getshortdatestring(starttime);
           displayandstore();
+		  if($joblocation=="Customer Site") {
+		    window.location.replace("riskassessment.html");
+		    }
 	      }
         else {
 		  localStorage.setItem("edittimebutton","start");
@@ -352,22 +381,7 @@ when is jobcompletionlist updated?
           Complete Job
         </a>
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	  <div data-role="collapsible-set" data-content-theme="d">
+	    <div data-role="collapsible-set" data-content-theme="d">
           <div data-role="collapsible" data-collapsed="true">
             <h3>
               Job Detail
@@ -376,19 +390,26 @@ when is jobcompletionlist updated?
               <div id='body'></div>
             </div>
           </div>
-		  
-      
-	
-	    <!--<div data-role="collapsible-set" data-content-theme="d">-->
+		      
           <div data-role="collapsible" data-collapsed="false">
             <h3>
               Job Timing
             </h3>
 		    <script>showtimingbuttons()</script>
           </div>
-        <!--</div>
-		
-	    <div data-role="collapsible-set" data-content-theme="d">-->
+		  		  
+          <div data-role="collapsible" data-collapsed="true">
+            <h3>
+              Risk Assessment
+            </h3>
+		    <!--<div class="small">-->
+			  <br/>
+			  <strong>Status: </strong><span id="riskassessmentstatus">N/a</span>
+			  <br/><br/>
+		    <!--</div>-->
+			<a id="riskassessmentbutton" data-role="button" data-theme="b">Risk Assessment</a>
+          </div>
+		  		  
           <div data-role="collapsible" data-collapsed="true">
             <h3>
               Issues
@@ -398,20 +419,15 @@ when is jobcompletionlist updated?
 			  <script>showissuecheckboxes()</script>
 		    </fieldset>
           </div>
-        <!--</div>
-		
-	    <div data-role="collapsible-set" data-content-theme="d">-->
+
           <div data-role="collapsible" data-collapsed="true">
             <h3>
               Notes
             </h3>
-            <!--<label for="notes">Notes:</label>-->
             <textarea name="notes" rows="8" id="notes" onchange="noteschanged()"></textarea>		    
           </div>
         </div>
 		
-
-
         <div data-role="fieldcontain" id="completionmenu" class="completionmenuclass">
           <label for="completionmenu">
             Completion status:
@@ -421,12 +437,9 @@ when is jobcompletionlist updated?
           </select>
         </div>
 		
-				</div>
-		
-      </div>
+	  </div>
     </div>
 
   </body>
   
 </html>
-

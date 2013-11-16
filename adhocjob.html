@@ -1,0 +1,143 @@
+<!--
+
+-->
+
+<!DOCTYPE html>
+
+<html manifest="../cache.manifest">
+
+  <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" type="text/css" href="js/mobiletheme.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.mobile.min.css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/include.js"></script>
+    <script src="js/jquery.mobile.min.js"></script>
+    <title>ARP Mobile</title>
+
+    <script>
+	
+  	  //$rootpath = localStorage.getItem("rootpath");
+
+      $(document).ready(function() {
+        pageinitialisation();
+		
+	    $("#backbutton").click(function() {
+          window.location.replace("index.html");
+          }); // end of backbutton
+  
+        }); // end of DOM ready
+		
+      function showtimingbuttons() {
+        document.write('<table width="100%">');
+          document.write('<tr><td width="86">');
+            document.write('<a data-role="button" data-theme="b" onclick="departbuttonpressed()">Depart</a>');
+          document.write('</td><td width="5"></td><td>');
+	        document.write('<div id="departtime" class="jobtimes"></div>');
+	      document.write('</td></tr>');
+	      document.write('<tr><td>');
+	        document.write('<a data-role="button" data-theme="b" onclick="startbuttonpressed()">Start</a>');
+	      document.write('</td><td></td><td>');
+            document.write('<div id="starttime" class="jobtimes"></div>');
+	      document.write('</td></tr>');
+	      document.write('<tr><td>');
+            document.write('<a data-role="button" data-theme="b" onclick="finishbuttonpressed()">Finish</a>');
+	      document.write('</td><td></td><td>');
+            document.write('<div id="finishtime" class="jobtimes"></div>');
+	      document.write('</td></tr>');
+	      document.write('<tr><td>');
+            document.write('<a data-role="button" data-theme="b" onclick="returnbuttonpressed()">Return</a>');
+	      document.write('</td><td></td><td>');
+            document.write('<div id="returntime" class="jobtimes"></div>');
+          document.write('</td></tr>');
+        document.write('</table>');
+        }
+	
+      function showissuecheckboxes() {
+	    //var $issuesstring = $booking.issues;
+		//var $issuechecked = [];
+		//var $issuesarray = $issuesstring.split(',');
+		//for (var $issueid in $issuesarray) {
+		  //$issuechecked[$issuesarray[$issueid]] = true;
+		  //}
+        $jsonissueslist = localStorage.getItem("jsonissueslist");
+        if($jsonissueslist!='') {
+          $issueslist = JSON.parse($jsonissueslist);
+          for (var $item in $issueslist) {
+            // some browsers add more properties to every object, we don't want those
+            if ($issueslist.hasOwnProperty($item)) {
+	          $issue = $issueslist[$item];
+			  $checkedstring = '';
+			  //if($issuechecked[$item]) $checkedstring = ' checked';
+			  $checkboxref = 'checkbox-' + $item;
+		      document.write('<input type="checkbox" name="'+$checkboxref+'" id="'+$checkboxref+'"'+$checkedstring+' value="'+$item+'" class="custom"  onchange="issuescheckboxchanged()"/>');
+		      document.write('<label for="'+$checkboxref+'">'+$issue+'</label>');
+	          }
+	        } 
+	      }
+		}
+
+    </script>
+
+  </head>
+
+  <body>
+
+    <div data-role="page" id="page1">
+	
+	  <div data-role="header">
+	    <a id="backbutton" data-icon="back">Back</a>
+        <h2>Ad-Hoc Job Entry</h2>
+	  </div>
+	  
+      <div data-role="content">
+		
+        <div data-role="collapsible-set" data-content-theme="d">
+		
+          <div data-role="collapsible" data-collapsed="true">
+            <h3>Job Detail</h3>
+            <div id="list" class="ui-grid-a">
+              <div id='body'></div>
+            </div>
+          </div>
+		  
+          <div data-role="collapsible" data-collapsed="false">
+            <h3>Job Timing</h3>
+		    <script>showtimingbuttons()</script>
+          </div>
+        
+ 		  <div data-role="collapsible" data-collapsed="true">
+            <h3>Issues</h3>
+			<fieldset data-role="controlgroup" id="issues">
+		      <legend>Choose all that apply:</legend>
+			  <script>showissuecheckboxes()</script>
+		    </fieldset>
+          </div>
+
+          <div data-role="collapsible" data-collapsed="true">
+            <h3>Notes</h3>
+            <textarea name="notes" rows="8" id="notes" onchange="noteschanged()"></textarea>		    
+          </div>
+        </div>
+		
+        <div data-role="fieldcontain" id="completionmenu" class="completionmenuclass">
+          <label for="completionmenu">Completion status:</label>
+          <select id="completionmenu" data-native-menu="true" name="Completion Menu" data-theme="b" onchange="selectcompletionvalue(this)">
+	        <script>//showjobcompletionmenu($booking.completiondetailid)</script>
+          </select>
+        </div>
+		
+      </div>
+		
+	</div>
+
+  </body>
+
+</html>

@@ -42,10 +42,12 @@ booked jobs button should disappear if no engineer set or invalid engineer set
 		    downloadjobcompletionlist(); // downloads completion codes in case they have changed
 			downloadautocompletetypes(); // download auto complete types in case they have changed (probably isn't needed that often)
  	        uploadbookingdata(function() { // uploads all booking data
-              downloadjobs($engineerid,function(data,status) { // downloads new jobs and removes old jobs from bookingdata
-		        if(data==true) drawtable();
-				else ("#tablebody").html = "Error...";
-		        }); // end of downloadjobs 
+ 	          uploadriskassessmentdata(function() { // uploads all riskassessment data
+                downloadjobs($engineerid,function(data,status) { // downloads new jobs and removes old jobs from bookingdata
+		          if(data==true) drawtable();
+				  else ("#tablebody").html = "Error...";
+		          }); // end of downloadjobs 
+			    }); // end of uploadriskassessmentdata
 			  }); // end of uploadbookingdata
 	        } // end of online code
 	      else { // offline code here

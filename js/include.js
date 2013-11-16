@@ -211,7 +211,21 @@ function uploadbookingdata(callback) { // ONLY WORKS ONLINE BUT CAN BE CALLED ON
 	  // no offline code for this one
 	}); // end of onlinecheck
   callback();
-  } // end of newuploadbookingdata
+  } // end of uploadbookingdata
+  
+function uploadriskassessmentdata(callback) { // ONLY WORKS ONLINE BUT CAN BE CALLED ONLINE OR OFFLINE
+  $rootpath = localStorage.getItem("rootpath");
+  onlinecheck(function(result) {
+    if(result==true) { // online code here	  
+      var $jsonriskassessmentdata = localStorage.getItem("jsonriskassessmentdata");
+      if($jsonriskassessmentdata) { // only if jsonriskassessmentdata exists
+	    $.post($rootpath + "ajax/uploadriskassessmentdata.php",{jsonriskassessmentdata:$jsonriskassessmentdata});	
+		} // end of if jsonriskassessmentdata exists
+	  } // end of online code
+	  // no offline code for this one
+	}); // end of onlinecheck
+  callback();
+  } // end of uploadriskassessmentdata
   
 function downloadjobcompletionlist() { // ONLY WORKS ONLINE BUT CAN BE CALLED ONLINE OR OFFLINE
   $rootpath = localStorage.getItem("rootpath");
@@ -264,14 +278,22 @@ function downloadjobs($engineerid,callback) { // ONLY WORKS ONLINE BUT CAN BE CA
           $storedbookingdata = JSON.parse($storedjsonbookingdata);
           } // end of if exists		  
 		
+		var $storedjsonriskassessmentdata = localStorage.getItem("jsonriskassessmentdata");
+        var $storedriskassessmentdata = {};
+		if($storedjsonriskassessmentdata) { // only if storedjsonriskassessmentdata exists	
+          $storedriskassessmentdata = JSON.parse($storedjsonriskassessmentdata);
+          } // end of if exists		  
+		
         var $jobarray = [];
 		var $bookingdata = {};
+		var $riskassessmentdata = {};
         for (var $item in $jobanddataarray) {
           // some browsers add more properties to every object, we don't want those
           if ($jobanddataarray.hasOwnProperty($item)) {
             var $bookingid = $item;
             var $jobdetail = {};
 			var $booking = {};
+			var $riskassessment = {};
 			$jobdetail.bookingid = $bookingid;
             $jobdetail.customer = $jobanddataarray[$bookingid].customer;
 		    $jobdetail.requester = $jobanddataarray[$bookingid].requester;
@@ -316,9 +338,47 @@ function downloadjobs($engineerid,callback) { // ONLY WORKS ONLINE BUT CAN BE CA
 			else {
 			  if($downloadeddata) $bookingdata[$bookingid] = $booking;
 			  }
+
+			$downloadedriskassessmentdata = false;
+			$riskassessment.rastartedtimestamp = $jobanddataarray[$bookingid].rastartedtimestamp;
+			$riskassessment.customerra = $jobanddataarray[$bookingid].customerra;
+			$riskassessment.evacuation = $jobanddataarray[$bookingid].evacuation;
+			$riskassessment.manualhandling = $jobanddataarray[$bookingid].manualhandling;
+			$riskassessment.electricalsafety = $jobanddataarray[$bookingid].electricalsafety;
+			$riskassessment.electricalsafetynotes = $jobanddataarray[$bookingid].electricalsafetynotes;
+			$riskassessment.electricalsafetyescalationnotes = $jobanddataarray[$bookingid].electricalsafetyescalationnotes;	
+			$riskassessment.asbestos = $jobanddataarray[$bookingid].asbestos;	
+			$riskassessment.workingatheight = $jobanddataarray[$bookingid].workingatheight;
+			$riskassessment.additionalrisks = $jobanddataarray[$bookingid].additionalrisks;
+			$riskassessment.additionalrisksnotes = $jobanddataarray[$bookingid].additionalrisksnotes;
+			$riskassessment.confirmation = $jobanddataarray[$bookingid].confirmation;
+			$riskassessment.status = $jobanddataarray[$bookingid].status;
+			$riskassessment.racompletedtimestamp = $jobanddataarray[$bookingid].racompletedtimestamp;
+			if($riskassessment.rastartedtimestamp!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.customerra!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.evacuation!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.manualhandling!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.electricalsafety!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.electricalsafetynotes!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.electricalsafetyescalationnotes!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.asbestos!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.workingatheight!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.additionalrisks!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.additionalrisksnotes!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.confirmation!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.status!='') $downloadedriskassessmentdata=true;
+			if($riskassessment.racompletedtimestamp!='') $downloadedriskassessmentdata=true;
+			
+			if($storedriskassessmentdata[$bookingid]) {
+			  $riskassessmentdata[$bookingid] = $storedriskassessmentdata[$bookingid];
+			  // check individual timing comparison?
+			  }
+			else {
+			  if($downloadedriskassessmentdata) $riskassessmentdata[$bookingid] = $riskassessment;
+			  }
+			  
             } // end of if hasownproperty
           }  // end of for loop		
-		  
 		  
 		$jobarray.sort(compare);  
 
@@ -330,6 +390,9 @@ function downloadjobs($engineerid,callback) { // ONLY WORKS ONLINE BUT CAN BE CA
 	    var $jsonbookingdata = JSON.stringify($bookingdata);
         localStorage.removeItem("jsonbookingdata");
         localStorage.setItem("jsonbookingdata",$jsonbookingdata);
+	    var $jsonriskassessmentdata = JSON.stringify($riskassessmentdata);
+        localStorage.removeItem("jsonriskassessmentdata");
+        localStorage.setItem("jsonriskassessmentdata",$jsonriskassessmentdata);
 	    callback(true); 
 	    }); // end of $post
 	  } // end of online code
