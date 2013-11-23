@@ -200,8 +200,12 @@ when is jobcompletionlist updated?
         displayandstore();		
 		}
 		
-      function savebuttonpressed() { 
-        if($booking.completiondetailid==0) alert("The job cannot be completed because it's status is 'In Progress'");
+      function savebuttonpressed() {
+        var $oktocomplete = true;	  
+        if($booking.completiondetailid==0) {
+		  $oktocomplete = false;
+		  alert("The job cannot be completed because it's status is 'In Progress'");
+		  }
         else {
           var $departtimetimestamp = '-';
           var $starttimetimestamp = '-';
@@ -221,16 +225,21 @@ when is jobcompletionlist updated?
 	      if ($finishtimetimestamp!='-' && $returntimetimestamp!='-') {
 	        if($returntimetimestamp<$finishtimetimestamp) $datesvalid = false;
 	        }
-          if($datesvalid==false) alert('Please correct the dates or times, one or more of the entries are not in sequence');
-	      else if($booking.starttime=='-' || $booking.finishtime=='-') {
-	        alert('The job cannot be completed because either the Start time or the Finish time has not been set');
+          if($datesvalid==false) {
+		    $oktocomplete = false;
+			alert('Please correct the dates or times, one or more of the entries are not in sequence');
 	        }
-	      else if($joblocation=='Customer Site') {		  
+		  else if($booking.starttime=='-' || $booking.finishtime=='-') {
+	        $oktocomplete = false;
+			alert('The job cannot be completed because either the Start time or the Finish time has not been set');
+	        }
+	      if($joblocation=='Customer Site') {		  
 		    if($riskassessment.status=='In Progress' || $riskassessment.status=='Not Started') {
-	          alert('The job cannot be completed because a Risk Assessment has not been completed');
+	          $oktocomplete = false;
+			  alert('The job cannot be completed because a Risk Assessment has not been completed');
               }
 			}
-	      else {
+	      if($oktocomplete) {
             $booking.complete = 'yes';
             $bookingdata[$bookingid] = $booking;
             var $jsonbookingdata = JSON.stringify($bookingdata);
