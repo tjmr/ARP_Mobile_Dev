@@ -100,6 +100,7 @@ when is jobcompletionlist updated?
             tablecontent += '<table border="1" cellpadding="4" cellspacing="0" width="258" class="small">';
 	        tablecontent += '<tr><td>ID:</td><td>'+jobarray[$item].bookingid+'</td></tr>';
 	        tablecontent += '<tr><td>Type:</td><td>'+jobarray[$item].type+'</td></tr>';
+			$bookingtype = jobarray[$item].type; // used to determine if risk assessment is required
 	        tablecontent += '<tr><td>Customer:</td><td>'+jobarray[$item].customer+'</td></tr>';
 	        $decodeddetail = hex2bin(jobarray[$item].detail);
 	        tablecontent += '<tr><td>Detail:</td><td>'+$decodeddetail+'</td></tr>';
@@ -113,6 +114,10 @@ when is jobcompletionlist updated?
 	        tablecontent += '<tr><td>Postcode:</td><td>'+jobarray[$item].postcode+'</td></tr>';
             tablecontent += '</table><br />';
 		    if($joblocation!=='Customer Site') {
+		      $("#riskassessmentbutton").hide();
+			  $("#riskassessmentstatus").text("Not Applicable");
+		      }		    
+			if($bookingtype=='Travel') {
 		      $("#riskassessmentbutton").hide();
 			  $("#riskassessmentstatus").text("Not Applicable");
 		      }
@@ -233,7 +238,7 @@ when is jobcompletionlist updated?
 	        $oktocomplete = false;
 			alert('The job cannot be completed because either the Start time or the Finish time has not been set');
 	        }
-	      if($joblocation=='Customer Site') {		  
+	      if($joblocation=='Customer Site' && $bookingtype!=='Travel') {		  
 		    if($riskassessment.status=='In Progress' || $riskassessment.status=='Not Started') {
 	          $oktocomplete = false;
 			  alert('The job cannot be completed because a Risk Assessment has not been completed');
