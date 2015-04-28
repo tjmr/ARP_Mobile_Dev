@@ -17,6 +17,7 @@
     </author>
 	
 	<gap:platform name="android" />
+	<gap:platform name="windows" />
 
     <!--
         Enable individual API permissions here.
