@@ -39,14 +39,14 @@ function pageinitialisation() { // WORKS ONLINE AND OFFLINE
   document.title = $pagetitle; 
   // if online re-download title incase of changes
   onlinecheck(function(result) {
-    if(result==true) {  // online code here
+    if(result==true) {  // online code here            
       $.post($rootpath + "getsiteparameters.php",
         function(data,status) {
 	      $pagetitle = data;
           localStorage.setItem("storedpagetitle",$pagetitle);
           document.title = $pagetitle;  
 	      } // end of function
-	    ); // end of $post
+	    ); // end of $post		
 	  } // end of online code
 	else {  // offline code here
   	  // DO NOTHING   
@@ -266,12 +266,14 @@ function downloadjobs($engineerid,callback) { // ONLY WORKS ONLINE BUT CAN BE CA
   onlinecheck(function(result) { 
     if(result==true) { // online code here	    //  *****   CHECK $.AJAX TO HANDLE TIMEOUT     ********
 	  $.mobile.loading('show');
+  
       $.post($rootpath + "getbookedjobs.php",{engineerid:$engineerid},function(data,status) {
         var $jsonjobanddataarray = data;
 	    //alert($jsonjobanddataarray);
+		document.getElementById("tablebody").innerHTML = $jsonjobanddataarray; // display data
         var $jobanddataarray = {};
         if($jsonjobanddataarray) $jobanddataarray = JSON.parse($jsonjobanddataarray);
-		
+		//alert('Parsed');
 		var $storedjsonbookingdata = localStorage.getItem("jsonbookingdata");
         var $storedbookingdata = {};
 		if($storedjsonbookingdata) { // only if storedjsonbookingdata exists	
@@ -291,6 +293,7 @@ function downloadjobs($engineerid,callback) { // ONLY WORKS ONLINE BUT CAN BE CA
           // some browsers add more properties to every object, we don't want those
           if ($jobanddataarray.hasOwnProperty($item)) {
             var $bookingid = $item;
+			//alert($bookingid);
             var $jobdetail = {};
 			var $booking = {};
 			var $riskassessment = {};
@@ -308,6 +311,8 @@ function downloadjobs($engineerid,callback) { // ONLY WORKS ONLINE BUT CAN BE CA
 		    $jobdetail.postcode = $jobanddataarray[$bookingid].postcode;
 		    $jobdetail.projectnumber = $jobanddataarray[$bookingid].projectnumber;
 		    $jobdetail.description = $jobanddataarray[$bookingid].description;
+		    $jobdetail.otapprovalstatus = $jobanddataarray[$bookingid].otapprovalstatus;
+		    $jobdetail.plannedstart = $jobanddataarray[$bookingid].plannedstart;
 		    //$jobarray[$bookingid] = $jobdetail;			
 			$jobarray.push($jobdetail);
 
@@ -395,6 +400,8 @@ function downloadjobs($engineerid,callback) { // ONLY WORKS ONLINE BUT CAN BE CA
         localStorage.setItem("jsonriskassessmentdata",$jsonriskassessmentdata);
 	    callback(true); 
 	    }); // end of $post
+		
+		
 	  } // end of online code
     else { // offline code here
   	  callback(false);
@@ -415,7 +422,7 @@ function onlinecheck(callback) {
     cache: false,
     type: 'GET',
     url: $rootpath + 'online.txt',
-    timeout: 500,
+    timeout: 2000,
     success: function(data, textStatus, XMLHttpRequest) {
       if (data = 'online') callback(true);
       else callback(false); },
@@ -474,8 +481,9 @@ function autocomplete(callback) {   // WORKS ONLINE AND OFFLINE
   for (var $ac_item in $ac_jobarray) {
     // some browsers add more properties to every object, we don't want those
     if ($ac_jobarray.hasOwnProperty($ac_item)) {
-      var $ac_bookingid = $ac_item;
-      var $ac_bookingtimestamp = new Date($ac_jobarray[$ac_bookingid].date).getTime() / 1000;   
+      var $ac_jobarrayid = $ac_item;
+      var $ac_bookingid = $ac_jobarray[$ac_jobarrayid].bookingid;
+      var $ac_bookingtimestamp = new Date($ac_jobarray[$ac_jobarrayid].date).getTime() / 1000;   
       var $ac_datepassed = false;
       if($ac_bookingtimestamp<$ac_todaytimestamp) $ac_datepassed = true;
       if($ac_datepassed) {
@@ -484,7 +492,7 @@ function autocomplete(callback) {   // WORKS ONLINE AND OFFLINE
           // some browsers add more properties to every object, we don't want those
           if ($ac_autocompletetypes.hasOwnProperty($ac_typeitem)) {
             var $ac_type = $ac_typeitem;
-            if($ac_jobarray[$ac_bookingid].type == $ac_type) { // complete it
+            if($ac_jobarray[$ac_jobarrayid].type == $ac_type) { // complete it
 			  if($ac_bookingdata[$ac_bookingid]) {
 			    $ac_bookingdata[$ac_bookingid].complete = 'yes';
 				}

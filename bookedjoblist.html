@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+
+<html manifest="../cache.manifest">
+
 <!--
 rewrite jobcompletion list download code so it doesn't download every time
 check for successful download
@@ -5,10 +9,6 @@ upload bookingdata before download?
 check for no jobs in the list
 booked jobs button should disappear if no engineer set or invalid engineer set
 -->
-
-<!DOCTYPE html>
-
-<html manifest="../cache.manifest">
 
   <head>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -38,11 +38,13 @@ booked jobs button should disappear if no engineer set or invalid engineer set
 		autocomplete(function() {
 		
 	    onlinecheck(function(result) {
+		//alert("call online check");
           if(result==true) { // online code here
 		    downloadjobcompletionlist(); // downloads completion codes in case they have changed
 			downloadautocompletetypes(); // download auto complete types in case they have changed (probably isn't needed that often)
  	        uploadbookingdata(function() { // uploads all booking data
  	          uploadriskassessmentdata(function() { // uploads all riskassessment data
+			  //alert("call download jobs");
                 downloadjobs($engineerid,function(data,status) { // downloads new jobs and removes old jobs from bookingdata
 		          if(data==true) drawtable();
 				  else ("#tablebody").html = "Error...";
@@ -107,8 +109,11 @@ booked jobs button should disappear if no engineer set or invalid engineer set
 	          $tablecontent += '<tr><td>Detail:</td><td>'+$decodeddetail+'</td></tr>';
 	          $tablecontent += '<tr><td>Project No.:</td><td>'+jobarray[$item].projectnumber+'</td></tr>';
 	          $tablecontent += '<tr><td>Project:</td><td>'+jobarray[$item].description+'</td></tr>';
-	          $tablecontent += '<tr><td>Timeslot:</td><td>'+jobarray[$item].timeslot+'</td></tr>';
+			  $oohstatus = '';
+              if (jobarray[$item].timeslot=='OOH') $oohstatus = ' - ' + jobarray[$item].otapprovalstatus;
+	          $tablecontent += '<tr><td>Timeslot:</td><td>'+jobarray[$item].timeslot+$oohstatus+'</td></tr>';
 	          $tablecontent += '<tr><td>Length:</td><td>'+jobarray[$item].length+'</td></tr>';
+	          $tablecontent += '<tr><td>Start Time:</td><td>'+jobarray[$item].plannedstart+'</td></tr>';
 	          $tablecontent += '<tr><td>Location:</td><td>'+jobarray[$item].location+'</td></tr>';
 	          $tablecontent += '<tr><td>Town:</td><td>'+jobarray[$item].town+'</td></tr>';
 	          $tablecontent += '<tr><td>Postcode:</td><td>'+jobarray[$item].postcode+'</td></tr>';

@@ -38,6 +38,7 @@ in time modify to select the name from a list of valid names, narrow the list do
             localStorage.setItem("storedengineerid",$engineerid);
             localStorage.removeItem("jsonjobarray"); // check if anything else should be removed when changing engineer
   		    localStorage.removeItem("storedengineername");
+			localStorage.setItem("kpistatus","");
             window.location.replace("index.html");
 	        } // end of online code
 	      else {  // offline code here

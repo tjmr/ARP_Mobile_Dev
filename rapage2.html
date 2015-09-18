@@ -58,16 +58,24 @@
       $(document).ready(function() {
         pageinitialisation();
 
-	    $("#p1continue").click(function() { // *** Start ***   Done
-          if($riskassessment.rastartedtimestamp=='') {
-		    var $starttimestamp = new Date
-            $riskassessment.rastartedtimestamp = getshortdatestring($starttimestamp);
-            $riskassessment.status = 'In Progress';
-            store();
-		    }
-		  window.location.replace("rapage2.html");
-          }); // end of p1continue
-    
+	    $("#p2yes").click(function() { // *** Customer Generic Risk Assessment ***   Done
+		  $riskassessment.customerra = 'Yes';
+		  store();
+          window.location.replace("rapage3.html");
+          }); // end of p2yes
+  
+	    $("#p2no").click(function() { // *** Customer Generic Risk Assessment ***   Done
+		  $riskassessment.customerra = 'No';
+		  store();
+          window.location.replace("rapage3.html");
+          }); // end of p2no
+  
+	    $("#p2nonesent").click(function() { // *** Customer Generic Risk Assessment ***   Done
+		  $riskassessment.customerra = 'None Sent';
+		  store();
+          window.location.replace("rapage3.html");
+          }); // end of p2nonesent
+   
         }); // end of DOM ready	
 	
       function store() {
@@ -96,20 +104,32 @@
 
   <body>
 
-    <!-- Page 1 : start -->
-    <div data-role="page" id="page1">
+    <!-- Page 2 : customer generic risk assessment -->
+    <div data-role="page" id="page2">
       <div class="ui-bar ui-bar-b">
 	    <h3>Risk Assessment</h3>
       </div>	  
       <div data-role="content">
-	    <div class="small">
-		  <p>
-		    The following set of questions form a Risk Assessment of the site and the work you are about to undertake.  Each question must be answered.  Please answer each question correctly, and ensure you comply with all health and safety working practices and guidelines as covered in the health and safety training you have received.  Should you have any concerns about the safety of the working environment you have been asked to work in, please note it properly on this form, and follow the relevant guidelines and processes to maximise safety and reduce unnecessary risk.
-		  </p>		
+		<div>
+		  <p><strong>
+		    Have you read the customer's generic risk assessment?
+		  </strong></p>
         </div>
-		<p><a  id="p1continue" data-theme="b" data-role="button">Continue</a></p>
+		<div class="small">
+		  <p><em>
+		    If the customer has a generic risk assessment it should have been provided as part of the work pack.<br/>
+		  </em></p>		
+          <p>&nbsp;</p>
+        </div>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a id="p2yes" data-theme="b" data-role="button">Yes</a></div>
+		  <div class="ui-block-b"><a id="p2no" data-theme="a" data-role="button">No</a></div>
+        </div>
+		<div class="ui-grid-solo">
+		  <div class="ui-block-a"><a id="p2nonesent" data-theme="c" data-role="button">None Sent</a></div>
+		</div>
 	  </div><!-- /content -->
-    </div><!-- /page1 -->
+    </div><!-- /page2 -->
 
   </body>
 

@@ -106,8 +106,11 @@ when is jobcompletionlist updated?
 	        tablecontent += '<tr><td>Detail:</td><td>'+$decodeddetail+'</td></tr>';
 	        tablecontent += '<tr><td>Project No.:</td><td>'+jobarray[$item].projectnumber+'</td></tr>';
 	        tablecontent += '<tr><td>Project:</td><td>'+jobarray[$item].description+'</td></tr>';
-	        tablecontent += '<tr><td>Timeslot:</td><td>'+jobarray[$item].timeslot+'</td></tr>';
+			$oohstatus = '';
+            if (jobarray[$item].timeslot=='OOH') $oohstatus = ' - ' + jobarray[$item].otapprovalstatus;
+	        tablecontent += '<tr><td>Timeslot:</td><td>'+jobarray[$item].timeslot+$oohstatus+'</td></tr>';
 	        tablecontent += '<tr><td>Length:</td><td>'+jobarray[$item].length+'</td></tr>';
+	        tablecontent += '<tr><td>Start Time:</td><td>'+jobarray[$item].plannedstart+'</td></tr>';
 	        tablecontent += '<tr><td>Location:</td><td>'+jobarray[$item].location+'</td></tr>';
 			$joblocation = jobarray[$item].location; // used to determine if risk assessment is required
 	        tablecontent += '<tr><td>Town:</td><td>'+jobarray[$item].town+'</td></tr>';

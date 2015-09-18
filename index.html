@@ -53,16 +53,19 @@
 				else {
                   localStorage.setItem("storedengineername",$engineername);
 	              document.getElementById("engineertext").innerHTML = "Engineer: " + $engineername;
-                  }				  
+                  displaykpistatus();
+				  }				  
 		        });	// end of $post
 	          } // end of online code
 	        else { // offline code here
   	          document.getElementById("engineertext").innerHTML = "Engineer ID: " + $engineerid;
-	          } // end of offline code
+	          displaykpistatus();
+			  } // end of offline code
 	        }); // end of onlinecheck 		  
           }
 		else {
           document.getElementById("engineertext").innerHTML = "Engineer: " + $engineername;   
+		  displaykpistatus();
 	      }
 		downloadissueslist(); // download issues list in case it has changed (probably isn't needed that often)
 
@@ -107,6 +110,22 @@
       function onlinecheckbuttonpressed() {
         alertshowingonlinestatus(); 
 		}
+		
+      function displaykpistatus() {
+	    var $kpistatus = localStorage.getItem("kpistatus"); // retreive from locally cached data
+        onlinecheck(function(result) {
+          if(result==true) { // online code here	  
+            $.post($rootpath + "getkpistatus.php",{engineerid:$engineerid},   // get KPI status
+            function(data,status) {
+              $kpistatus = data; // replace $kpistatus with updated data when online
+			  localStorage.setItem("kpistatus",$kpistatus); // store locally
+			  document.getElementById("kpistatus").innerHTML = $kpistatus; // display data 
+              }); // end of $post		
+	        } // end of online code
+	        // no offline code
+	      }); // end of onlinecheck
+	    document.getElementById("kpistatus").innerHTML = $kpistatus; // display data 
+	  }
   
       /*function erasebuttonpressed() {
         localStorage.removeItem("jsonbookingdata");
@@ -157,12 +176,16 @@
               <div class='small' id='engineertext'></div>
             </td>
 		    <td align='right' style='vertical-align:middle'>
-		      <span style='font-size:60%'>524d</span>
+		      <span style='font-size:60%'>575d</span>
             </td>
 		  </tr>
         </table>
 
         <hr />
+		
+        <div id='kpistatus'>
+		</div>
+
 		
         <ul data-role="listview" data-divider-theme="b" data-inset="true">
           <li data-theme="b"  onclick="bookedjobsbuttonpressed()">Booked Jobs</li>
@@ -180,14 +203,14 @@
 		
 		
         <ul data-role="listview" data-divider-theme="b" data-inset="true">		  
-          <li data-theme="b" id="adhocjobbutton">Ad-hoc Job</li>
+          <!--<li data-theme="b" id="adhocjobbutton">Ad-hoc Job</li>-->
           <li data-theme="b" onclick="setupbuttonpressed()">Setup</li>
           <li data-theme="b" id="worksummarybutton">Work Summary</li>
           <li data-theme="b"  onclick="onlinecheckbuttonpressed()">Online Check</li>
+          <!--<li data-theme="b"  onclick="displaykpistatus()">Test KPI Status</li>   -->        <!-- remove when automatic -->
         </ul>
 		
-		
-		
+			
 		<!--<a href="#popupBasic" data-rel="popup" data-role="button" data-inline="true">Open Popup</a>-->
 
 <!--<div data-role="popup" id="popupBasic">

@@ -57,16 +57,15 @@
 		
       $(document).ready(function() {
         pageinitialisation();
-
-	    $("#p1continue").click(function() { // *** Start ***   Done
-          if($riskassessment.rastartedtimestamp=='') {
-		    var $starttimestamp = new Date
-            $riskassessment.rastartedtimestamp = getshortdatestring($starttimestamp);
-            $riskassessment.status = 'In Progress';
-            store();
-		    }
-		  window.location.replace("rapage2.html");
-          }); // end of p1continue
+		$('#esnotes').val($riskassessment.electricalsafetynotes);
+          
+	    $("#p7confirm").click(function() { // *** Electrical Safety Notes ***   Done
+          $electricalsafetynotes = $('#esnotes').val();
+		  //  **** CHECK FOR EMPTY NOTES FIELD ****
+		  $riskassessment.electricalsafetynotes = $electricalsafetynotes;
+		  store();
+          window.location.replace("rapage10.html");
+          }); // end of p7confirm
     
         }); // end of DOM ready	
 	
@@ -96,20 +95,24 @@
 
   <body>
 
-    <!-- Page 1 : start -->
-    <div data-role="page" id="page1">
+    <!-- Page 7 : electrical safety mitigation notes -->
+    <div data-role="page" id="page7">
       <div class="ui-bar ui-bar-b">
-	    <h3>Risk Assessment</h3>
+	    <h3>Risk Assessment - Electrical Safety</h3>
       </div>	  
       <div data-role="content">
-	    <div class="small">
+		<div class="small">
 		  <p>
-		    The following set of questions form a Risk Assessment of the site and the work you are about to undertake.  Each question must be answered.  Please answer each question correctly, and ensure you comply with all health and safety working practices and guidelines as covered in the health and safety training you have received.  Should you have any concerns about the safety of the working environment you have been asked to work in, please note it properly on this form, and follow the relevant guidelines and processes to maximise safety and reduce unnecessary risk.
-		  </p>		
+		    Please detail what control measures were used to reduce the risk of electrical hazard:
+		  </p>
+          <textarea name="esnotes" rows="8" id="esnotes"  data-theme="c"></textarea>
         </div>
-		<p><a  id="p1continue" data-theme="b" data-role="button">Continue</a></p>
+		<div>
+		  <br/>
+		  <a id="p7confirm" data-theme="b" data-role="button">Confirm</a>
+        </div>
 	  </div><!-- /content -->
-    </div><!-- /page1 -->
+    </div><!-- /page7 -->
 
   </body>
 

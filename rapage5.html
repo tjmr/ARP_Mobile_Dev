@@ -57,17 +57,19 @@
 		
       $(document).ready(function() {
         pageinitialisation();
-
-	    $("#p1continue").click(function() { // *** Start ***   Done
-          if($riskassessment.rastartedtimestamp=='') {
-		    var $starttimestamp = new Date
-            $riskassessment.rastartedtimestamp = getshortdatestring($starttimestamp);
-            $riskassessment.status = 'In Progress';
-            store();
-		    }
-		  window.location.replace("rapage2.html");
-          }); // end of p1continue
-    
+      
+	    $("#p5yes").click(function() { // *** Electrical Safety ***   Done
+		  $riskassessment.electricalsafety = 'Yes';
+		  store();
+          window.location.replace("rapage6.html");
+          }); // end of p5yes
+  
+	    $("#p5no").click(function() { // *** Electrical Safety ***   Done
+		  $riskassessment.electricalsafety = 'No';
+		  store();
+          window.location.replace("rapage10.html");
+          }); // end of p5no
+  
         }); // end of DOM ready	
 	
       function store() {
@@ -96,20 +98,24 @@
 
   <body>
 
-    <!-- Page 1 : start -->
-    <div data-role="page" id="page1">
+    <!-- Page 5 : electrical safety -->
+    <div data-role="page" id="page5">
       <div class="ui-bar ui-bar-b">
-	    <h3>Risk Assessment</h3>
+	    <h3>Risk Assessment - Electrical Safety</h3>
       </div>	  
       <div data-role="content">
-	    <div class="small">
-		  <p>
-		    The following set of questions form a Risk Assessment of the site and the work you are about to undertake.  Each question must be answered.  Please answer each question correctly, and ensure you comply with all health and safety working practices and guidelines as covered in the health and safety training you have received.  Should you have any concerns about the safety of the working environment you have been asked to work in, please note it properly on this form, and follow the relevant guidelines and processes to maximise safety and reduce unnecessary risk.
-		  </p>		
+		<div>
+		  <p><strong>
+		    In the area you are working, are there any visible electrical hazards?
+		  </strong></p>
+		  <p>&nbsp;</p>
         </div>
-		<p><a  id="p1continue" data-theme="b" data-role="button">Continue</a></p>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a id="p5yes" data-theme="b" data-role="button">Yes</a></div> 
+		  <div class="ui-block-b"><a id="p5no" data-theme="a" data-role="button">No</a></div>
+        </div>
 	  </div><!-- /content -->
-    </div><!-- /page1 -->
+    </div><!-- /page5 -->
 
   </body>
 

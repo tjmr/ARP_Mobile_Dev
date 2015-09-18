@@ -57,16 +57,18 @@
 		
       $(document).ready(function() {
         pageinitialisation();
-
-	    $("#p1continue").click(function() { // *** Start ***   Done
-          if($riskassessment.rastartedtimestamp=='') {
-		    var $starttimestamp = new Date
-            $riskassessment.rastartedtimestamp = getshortdatestring($starttimestamp);
-            $riskassessment.status = 'In Progress';
-            store();
-		    }
-		  window.location.replace("rapage2.html");
-          }); // end of p1continue
+               
+	    $("#p11no").click(function() { // *** Working at Height ***   Done
+		  $riskassessment.workingatheight = 'No';
+		  store();
+          window.location.replace("rapage12.html");
+          }); // end of p11no
+  
+	    $("#p11agree").click(function() { // *** Working at Height ***   Done
+		  $riskassessment.workingatheight = 'Agree';
+		  store();
+          window.location.replace("rapage12.html");
+          }); // end of p11agree
     
         }); // end of DOM ready	
 	
@@ -96,20 +98,31 @@
 
   <body>
 
-    <!-- Page 1 : start -->
-    <div data-role="page" id="page1">
+    <!-- Page 11 : working at height -->
+    <div data-role="page" id="page11">
       <div class="ui-bar ui-bar-b">
-	    <h3>Risk Assessment</h3>
+	    <h3>Risk Assessment - Working at Height</h3>
       </div>	  
       <div data-role="content">
-	    <div class="small">
-		  <p>
-		    The following set of questions form a Risk Assessment of the site and the work you are about to undertake.  Each question must be answered.  Please answer each question correctly, and ensure you comply with all health and safety working practices and guidelines as covered in the health and safety training you have received.  Should you have any concerns about the safety of the working environment you have been asked to work in, please note it properly on this form, and follow the relevant guidelines and processes to maximise safety and reduce unnecessary risk.
-		  </p>		
+		<div>
+		  <p><strong>
+		    Is there a requirement to work at height (above floor level)?
+		  </strong></p>
+		  <p>&nbsp;</p>
         </div>
-		<p><a  id="p1continue" data-theme="b" data-role="button">Continue</a></p>
+		<div class="ui-grid-a">
+		  <div class="ui-block-a"><a href="#p11popupdialog" data-theme="b" data-rel="popup" data-position-to="window" data-role="button" data-transition="pop">Yes</a></div> 
+		  <div class="ui-block-b"><a id="p11no" data-theme="a" data-role="button">No</a></div>
+        </div>
+        <div data-role="popup" id="p11popupdialog" data-overlay-theme="a" data-theme="c" style="max-width:400px;" class="ui-corner-all">
+		  <div data-role="content" data-theme="d" class="ui-corner-bottom ui-content">
+		  	<p>Please ensure you use correct working at height techniques as covered in the Health and Safety training.</p>  
+			<p>&nbsp;</p>
+			<a id="p11agree" data-role="button" data-transition="flow" data-theme="b">Agree</a>
+		  </div>
+		</div>
 	  </div><!-- /content -->
-    </div><!-- /page1 -->
+    </div><!-- /page11 -->
 
   </body>
 

@@ -57,16 +57,12 @@
 		
       $(document).ready(function() {
         pageinitialisation();
-
-	    $("#p1continue").click(function() { // *** Start ***   Done
-          if($riskassessment.rastartedtimestamp=='') {
-		    var $starttimestamp = new Date
-            $riskassessment.rastartedtimestamp = getshortdatestring($starttimestamp);
-            $riskassessment.status = 'In Progress';
-            store();
-		    }
-		  window.location.replace("rapage2.html");
-          }); // end of p1continue
+           
+	    $("#p9ok").click(function() { // *** ABORT ***   Done
+		  $riskassessment.status = 'Complete';
+		  store();
+          window.location.replace("bookingdetail.html");
+          }); // end of p9ok
     
         }); // end of DOM ready	
 	
@@ -96,20 +92,23 @@
 
   <body>
 
-    <!-- Page 1 : start -->
-    <div data-role="page" id="page1">
+    <!-- Page 9 : abort -->
+    <div data-role="page" id="page9">
       <div class="ui-bar ui-bar-b">
-	    <h3>Risk Assessment</h3>
+	    <h3>Risk Assessment - Abort</h3>
       </div>	  
       <div data-role="content">
-	    <div class="small">
-		  <p>
-		    The following set of questions form a Risk Assessment of the site and the work you are about to undertake.  Each question must be answered.  Please answer each question correctly, and ensure you comply with all health and safety working practices and guidelines as covered in the health and safety training you have received.  Should you have any concerns about the safety of the working environment you have been asked to work in, please note it properly on this form, and follow the relevant guidelines and processes to maximise safety and reduce unnecessary risk.
-		  </p>		
+		<div>
+		  <p><strong>
+		    Due to the highlighted Health and Safety risk, this work cannot continue.  Please notify all relevant parties and leave site.
+		  </strong></p>
+		  <p>&nbsp;</p>
         </div>
-		<p><a  id="p1continue" data-theme="b" data-role="button">Continue</a></p>
+		<div>
+		  <a id="p9ok" data-theme="b" data-role="button">Ok</a>
+        </div>
 	  </div><!-- /content -->
-    </div><!-- /page1 -->
+    </div><!-- /page9 -->
 
   </body>
 

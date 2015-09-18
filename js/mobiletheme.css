@@ -1,5 +1,6 @@
 body, p, h1, h2, h3, h4, h5, table, td, th, ul, ol, textarea, input
 {
+/*font-family: verdana,helvetica,arial,sans-serif;*/
 font-family: verdana,helvetica,arial,sans-serif;
 }
 
@@ -31,6 +32,7 @@ font-size:58%;
 table.small
 {
 font-size:60%;
+text-shadow:none;
 }
 
 table.medium
