@@ -102,6 +102,7 @@ when is jobcompletionlist updated?
 	        tablecontent += '<tr><td>Type:</td><td>'+jobarray[$item].type+'</td></tr>';
 			$bookingtype = jobarray[$item].type; // used to determine if risk assessment is required
 	        tablecontent += '<tr><td>Customer:</td><td>'+jobarray[$item].customer+'</td></tr>';
+	        tablecontent += '<tr><td>Requester:</td><td>'+jobarray[$item].requester+'</td></tr>';
 	        $decodeddetail = hex2bin(jobarray[$item].detail);
 	        tablecontent += '<tr><td>Detail:</td><td>'+$decodeddetail+'</td></tr>';
 	        tablecontent += '<tr><td>Project No.:</td><td>'+jobarray[$item].projectnumber+'</td></tr>';
@@ -116,7 +117,8 @@ when is jobcompletionlist updated?
 	        tablecontent += '<tr><td>Town:</td><td>'+jobarray[$item].town+'</td></tr>';
 	        tablecontent += '<tr><td>Postcode:</td><td>'+jobarray[$item].postcode+'</td></tr>';
             tablecontent += '</table><br />';
-		    if($joblocation!=='Customer Site') {
+		    $("#riskassessmentstatus").text($riskassessment.status);
+			if($joblocation!=='Customer Site') {
 		      $("#riskassessmentbutton").hide();
 			  $("#riskassessmentstatus").text("Not Applicable");
 		      }		    
@@ -124,7 +126,6 @@ when is jobcompletionlist updated?
 		      $("#riskassessmentbutton").hide();
 			  $("#riskassessmentstatus").text("Not Applicable");
 		      }
-			else $("#riskassessmentstatus").text($riskassessment.status);
   		    }
           }
         document.getElementById("body").innerHTML = tablecontent;   
@@ -143,7 +144,7 @@ when is jobcompletionlist updated?
 	          //$jobcompletionid = $item;  //  remove if not needed!
 	          $jobcompletiondetail = $jobcompletionlist[$item];
 		      if($completiondetailid==$item) $selected = " selected";
-		      document.write('<option value="'+$item+'"'+$selected+' onclick="alert($bookingid)">'+$jobcompletiondetail+'</option>');
+		      document.write('<option value="'+$item+'"'+$selected+'>'+$jobcompletiondetail+'</option>');
 	          }
 	        } 
 	      }
@@ -328,7 +329,9 @@ when is jobcompletionlist updated?
           $booking.starttime = getshortdatestring(starttime);
           displayandstore();
 		  if($joblocation=="Customer Site") {
-		    window.location.replace("riskassessment.html");
+		    if($riskassessment.status!=='Complete') {
+		      window.location.replace("riskassessment.html");
+			  }
 		    }
 	      }
         else {

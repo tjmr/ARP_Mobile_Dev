@@ -3,10 +3,10 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "uk.co.rhodesnet.arpmobiledev"
-        version   = "1.0.575">
+        id        = "uk.co.rhodesnet.arpmobile"
+        version   = "1.0.582">
 
-    <name>ARP Mobile Dev</name>
+    <name>ARP Mobile</name>
 
     <description>
         SmartPhone interface to the Azzurri Resource Planner.
